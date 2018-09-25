@@ -20,10 +20,17 @@ class Vector2{
 	double* Coord = NULL;
 	double d(const char var) const;
 
+	double X1;
+	double Y1;
+	double X2;
+	double Y2;
+
 public:
 	Vector2(double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0);
 	~Vector2();
 
+	void FindNormal();
+	double GetCoordArray(int i);
 	double& GetCoordRef(int i);
 	double GetCoord(int i) const;
 	void SetCoord(int i, double val);
