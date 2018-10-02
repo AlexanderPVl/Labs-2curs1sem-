@@ -23,7 +23,10 @@ void FractFunc(){
 }
 
 void ContainerFunc(){
-	//Container<Fract>Cont1(10);
+	Container<Fract>Cont1(4);
+	Container<Fract>Cont2(Cont1);
+	Cont1 << cout << endl;
+	Cont2 << cout << endl;
 }
 
 int main(){
