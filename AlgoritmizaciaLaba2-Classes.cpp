@@ -137,8 +137,8 @@ ostream &operator << (ostream &ost, Fract f){
 	if (!f.GetNume()){
 		cout << "0" << endl;
 	}
-	else if (f.GetDeno()==1){
-		cout << f.GetNume() << endl; 
+	else if (f.GetDeno() == 1){
+		cout << f.GetNume() << endl;
 	}
 	else
 		cout << f.GetNume() << "/" << f.GetDeno() << endl;
@@ -147,54 +147,3 @@ ostream &operator << (ostream &ost, Fract f){
 
 
 
-//CONTAINER======================================
-template <class Type>
-Type& Container<Type>::operator [] (int n){
-	if (n >= Count)
-		return Array[Count];
-	return Array[n];
-}
-template <class Type>
-Container<Type>::~Container(){
-	delete[] Array;
-}
-template <class Type>
-Container<Type>::Container(Container<Type>&Cont){
-	int i;
-	Array = new Type[Cont.GetCount()];
-	for (i = 0; i < Cont.GetCount(); i++){
-		*this[i] = Cont[i];
-	}
-	this->Count = Cont.GetCount();
-}
-template <class Type>
-Container<Type>::Container(int N){
-	Array = new Type[N];
-	this->Count = N;
-}
-template <class Type>
-Container<Type>::Container(){
-	Array = new Type[1];
-	this->Count = 1;
-}
-/*template <class Type>
-void Container<Type>::Initialise(){
-	Type T;
-	int i = 0;
-	for (; i < Count; i++)
-		Array[i] = T;
-}*/
-template <class Type>
-int Container<Type>::GetCount(){
-	return Count;
-}
-template <class Type>
-Type& Container<Type>::ArrAccess(){
-	return Array;
-}
-/*template <class Type>
-ostream& Container<Type>::operator << (ostream &ost, Container<Type>Cont){
-	int i = 0;
-	for (; i < Cont.GetCount(); i++)
-		cout << Cont[i];
-}*/
