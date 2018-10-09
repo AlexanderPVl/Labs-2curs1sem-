@@ -2,7 +2,9 @@
 
 int main(){
 	//Player pl(10);
+	Developer Dev(1, 1, "Mark", "AlienLang");
+	Dev.PrintInfo();
 	int a = 123567;
-	cout << to_string(a).length() << endl;
+	//cout << to_string(a).length() << endl;
 	return 0;
 }
