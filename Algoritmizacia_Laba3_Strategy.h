@@ -41,6 +41,9 @@ public:
 	Developer(int id, int hp, string name, string lang) : Player(id, hp, name){
 		Language = lang;
 	}
+	void PrintSomeCode(){
+		cout << "int main(){" << endl << "\tHello, world!;" << endl << "\treturn 0;" << endl << "}" << endl;
+	}
 	void PrintInfo() override{
 		cout << "Developer name: " << Name << endl;
 	}
