@@ -42,6 +42,6 @@ public:
 		Language = lang;
 	}
 	void PrintInfo() override{
-		cout << "Developer name: " << Name;
+		cout << "Developer name: " << Name << endl;
 	}
 };
