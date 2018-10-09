@@ -29,11 +29,19 @@ public:
 	void MoveEas(){ ++Coord.X; }
 
 	virtual void PrintInfo() = 0{
-		cout << "Name: " << Name;
+		cout << "Player name: " << Name;
 	}
 };
 
 class Developer : protected Player{
 protected:
+	string Language;
 
+public:
+	Developer(int id, int hp, string name, string lang) : Player(id, hp, name){
+		Language = lang;
+	}
+	void PrintInfo() override{
+		cout << "Developer name: " << Name;
+	}
 };
