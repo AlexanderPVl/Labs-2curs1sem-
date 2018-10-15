@@ -8,8 +8,6 @@
 
 #define PI 3.141592653589793
 
-void ResetGlobalTime();
-
 class Vector2{
 public:
 	double x;
@@ -65,6 +63,7 @@ protected:
 	int id;
 	int hp;
 	int attac;
+	int range; //
 	bool alive;
 	Vector2 position;
 	Vector2 direction;
@@ -84,17 +83,21 @@ public:
 	Vector2& GetDirection() final override;
 	void GoToPoint(Vector2& point) final override;
 
-	void PrintInfo() override;
+	void PrintInfo() override = 0;
 };
 
 class Connor : public UFC_Unit{
 public:
 	Connor();
+
+	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
 };
 
 class Habib : public UFC_Unit{
 public:
 	Habib();
+
+	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
 };
 
 class Ferguson : public UFC_Unit{
@@ -102,4 +105,6 @@ class Ferguson : public UFC_Unit{
 public:
 	Ferguson();
 	void Attac(Unit& u) final override;
+
+	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
 };
