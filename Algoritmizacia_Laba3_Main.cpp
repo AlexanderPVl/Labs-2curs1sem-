@@ -12,29 +12,37 @@ int GetComand(std::string& command);
 void Iterate();
 
 void StrategyFunc(){
-	extern time_t global_time;
 	std::cout << "STRATEGY FUNCTION:=======================================================" << std::endl;
 
 	std::vector<Unit*> unitarray;
 
-	Connor* con = new Connor;
-	Habib* hab = new Habib;
-	unitarray.push_back(con);
-	unitarray.push_back(hab);
+	//Connor* con = new Connor;
+	//Habib* hab = new Habib;
+	unitarray.push_back(new Habib);
+	unitarray.push_back(new Connor);
 
 	for (auto unit : unitarray){
 		unit->PrintInfo();
 	}
 
-	hab->Attac(*con);
-	hab->Attac(*con);
-	con->PrintInfo();
-	std::cout << global_time << std::endl;
+	//hab->Attac(*con);
+	//hab->Attac(*con);
+	unitarray[0]->Attac(*unitarray[1]);
+	unitarray[0]->Attac(*unitarray[1]);
+	unitarray[1]->PrintInfo();
+	//con->PrintInfo();
+
 	_sleep(4000);
-	ResetGlobalTime();
-	std::cout << global_time << std::endl;
-	hab->Attac(*con);
-	con->PrintInfo();
+
+	//hab->Attac(*con);
+	unitarray[0]->Attac(*unitarray[1]);
+	unitarray[1]->PrintInfo();
+	unitarray[1]->Move(3);
+	_sleep(4000);
+	unitarray[0]->Attac(*unitarray[1]);
+	unitarray[1]->PrintInfo();
+
+	//con->PrintInfo();
 
 }
 
@@ -89,8 +97,6 @@ void Iterate(){
 }
 
 int main(){
-	//const time_t timer = time(NULL);;
-	//std::cout << timer;
 	//Iterate();
 	StrategyFunc();
 	//std::cout << std::endl;
