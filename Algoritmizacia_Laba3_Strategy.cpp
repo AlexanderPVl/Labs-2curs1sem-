@@ -9,12 +9,6 @@ typedef vector <int> IntVec;
 
 #include "Strategy.h"
 
-time_t global_time;
-
-void ResetGlobalTime(){
-	global_time = time(NULL);
-}
-
 //VECTOR2=================================
 Vector2::Vector2(){ Set(0, 0); }
 
@@ -58,14 +52,12 @@ Vector2& Vector2::operator = (const Vector2& v){
 }
 
 std::ostream& Vector2::operator << (std::ostream& ost){
-	//std::cout.precision(2);
-	std::cout << /*std::fixed <<*/ "(" << x << ", " << y << ")" << std::endl;
+	std::cout << "(" << x << ", " << y << ")" << std::endl;
 	return ost;
 }
 
 std::ostream& operator << (std::ostream& ost, const Vector2& v){
-	//std::cout.precision(2);
-	std::cout << /*std::fixed <<*/ "(" << v.x << ", " << v.y << ")" << std::endl;
+	std::cout << "(" << v.x << ", " << v.y << ")" << std::endl;
 	return ost;
 }
 
@@ -105,17 +97,20 @@ void UFC_Unit::Hit(int n){
 	else hp -= n;
 }
 void UFC_Unit::Attac(Unit& u){
-	ResetGlobalTime();
-	if (global_time - last_attac_time <= attac_delay){
-		std::cout << "Not time yet!";
+	if (time(NULL) - last_attac_time <= attac_delay){
+		std::cout << ">Not time yet!" << std::endl << std::endl;
 		return;
 	}
-	last_attac_time = global_time;
+	if ((position - u.GetPosition()).Length() > range){
+		std::cout << ">Enemy is too far" << std::endl << std::endl;
+		return;
+	}
+	last_attac_time = time(NULL);
 	u.Hit(attac);
 }
 
 Vector2& UFC_Unit::Move(double time){
-	position += direction * time;
+	position += direction * time * speed;
 	return position;
 }
 
@@ -137,7 +132,7 @@ void UFC_Unit::GoToPoint(Vector2& point) {
 void UFC_Unit::PrintInfo(){
 	std::cout << "ID: " << id << std::endl;
 	std::cout << "Hp: " << hp << std::endl << "Attac: " << attac << std::endl << "Position: " << position << "Direction: " << direction;
-	std::cout << "Speed: " << speed << std::endl;
+	std::cout << "Speed: " << speed << std::endl << std::endl;
 }
 
 //CONNOR=================================
@@ -146,7 +141,8 @@ Connor::Connor(){
 	id = 0;
 	hp = 100;
 	attac = 20;
-	speed = 10;
+	speed = 200;
+	range = 128; //
 	alive = true;
 	position.Set(0, 0);
 	direction.Set(1, 0);
@@ -160,7 +156,8 @@ Habib::Habib(){
 	id = 1;
 	hp = 150;
 	attac = 30;
-	speed = 12;
+	speed = 220;
+	range = 128; //
 	alive = true;
 	position.Set(0, 0);
 	direction.Set(1, 0);
@@ -175,7 +172,8 @@ Ferguson::Ferguson(){
 	hp = 130;
 	krit = 2;
 	attac = 50;
-	speed = 15;
+	speed = 230;
+	range = 128; //
 	alive = true;
 	position.Set(0, 0);
 	direction.Set(1, 0);
@@ -183,11 +181,14 @@ Ferguson::Ferguson(){
 	last_attac_time = 0;
 }
 void Ferguson::Attac(Unit& u){
-	ResetGlobalTime();
-	if (global_time - last_attac_time <= attac_delay){
-		std::cout << "Not time yet!";
+	if (time(NULL) - last_attac_time <= attac_delay){
+		std::cout << ">Not time yet!" << std::endl << std::endl;
 		return;
 	}
-	last_attac_time = global_time;
+	if ((position - u.GetPosition()).Length() > range){
+		std::cout << ">Enemy is too far" << std::endl << std::endl;
+		return;
+	}
+	last_attac_time = time(NULL);
 	u.Hit(attac * krit);
 }
