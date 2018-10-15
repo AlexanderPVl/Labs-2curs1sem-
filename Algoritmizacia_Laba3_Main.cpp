@@ -32,13 +32,13 @@ void StrategyFunc(){
 	unitarray[1]->PrintInfo();
 	//con->PrintInfo();
 
-	_sleep(4000);
+	_sleep(2000);
 
 	//hab->Attac(*con);
 	unitarray[0]->Attac(*unitarray[1]);
 	unitarray[1]->PrintInfo();
 	unitarray[1]->Move(3);
-	_sleep(4000);
+	_sleep(2000);
 	unitarray[0]->Attac(*unitarray[1]);
 	unitarray[1]->PrintInfo();
 
@@ -98,10 +98,27 @@ void Iterate(){
 
 int main(){
 	//Iterate();
-	StrategyFunc();
+	//StrategyFunc();
 	//std::cout << std::endl;
 	//FurnitureFunc();
 	//std::cout << Hash(std::string("123"));
+
+	Player player(1, std::string("Username"));
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(0);
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(1);
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(2);
+	player.PrintUnitArray();
+
+	Ferguson ferg;
+
+	player.ForEachUnitID_Attac(1, &ferg);
+	player.ForEachUnitID_Attac(1, &ferg);
+	player.ForEachUnitID_Attac(2, &ferg);
+
+	ferg.PrintInfo();
 
 	return 0;
 }
