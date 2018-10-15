@@ -3,6 +3,7 @@
 #include <vector>
 #include <iomanip>
 #include <time.h>
+#include <algorithm>
 
 #include "Includes.h"
 
@@ -33,28 +34,21 @@ std::ostream& operator << (std::ostream& ost, const Vector2& v);
 bool operator == (const Vector2& v1, const Vector2& v2);
 //==============================/>
 
-class Player{
-protected:
-	int id;
-	std::string name;
-public:
-	Player(int id, std::string& name);
-
-	virtual void PrintInfo() = 0;
-};
-
 class Unit{
 public:
 	Unit(){}
 	virtual void Hit(int) {}
-	virtual void Attac(Unit&) {}
+	virtual void Attac(Unit&) const {}
 	virtual Vector2& Move(double) = 0 {}
 	virtual Vector2& Rotate(int) = 0 {}
-	virtual Vector2& GetPosition() = 0 {}
-	virtual Vector2& GetDirection() = 0 {}
+	const virtual Vector2& GetPosition() const = 0 {}
+	const virtual Vector2& GetDirection() const = 0 {}
 	virtual void GoToPoint(Vector2&) = 0 {}
 
-	virtual void PrintInfo() = 0 {}
+	virtual int GetId() const { return 0; }
+	virtual time_t Cooldown() const = 0 {}
+
+	virtual void PrintInfo() const = 0 {}
 	virtual ~Unit() {}
 };
 
@@ -69,42 +63,60 @@ protected:
 	Vector2 direction;
 
 	time_t attac_delay;
-	time_t last_attac_time;
+	mutable time_t last_attac_time;
 
 	double speed;
 
 public:
 
 	void Hit(int n) final override;
-	void Attac(Unit& u) override;
+	void Attac(Unit& u) const override;
 	Vector2& Move(double) final override;
 	Vector2& Rotate(int) final override;
-	Vector2& GetPosition() final override;
-	Vector2& GetDirection() final override;
+	const Vector2& GetPosition() const final override;
+	const Vector2& GetDirection() const final override;
 	void GoToPoint(Vector2& point) final override;
 
-	void PrintInfo() override = 0;
+	int GetId() const override;
+	time_t Cooldown() const override;
+
+	void PrintInfo() const override = 0;
 };
 
 class Connor : public UFC_Unit{
 public:
 	Connor();
 
-	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
+	void PrintInfo() const final override { UFC_Unit::PrintInfo(); }
 };
 
 class Habib : public UFC_Unit{
 public:
 	Habib();
 
-	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
+	void PrintInfo() const final override { UFC_Unit::PrintInfo(); }
 };
 
 class Ferguson : public UFC_Unit{
 	int krit;
 public:
 	Ferguson();
-	void Attac(Unit& u) final override;
+	void Attac(Unit& u) const final override;
 
-	void PrintInfo() final override { UFC_Unit::PrintInfo(); }
+	void PrintInfo() const final override { UFC_Unit::PrintInfo(); }
+};
+
+class Player{
+protected:
+	int id;
+	std::string name;
+	std::vector<Unit*> unit_array;
+public:
+	Player(int id, std::string& name);
+	~Player();
+	void AddUnit(int id);
+	void PrintUnitArray();
+	void ForEachUnitID_Attac(int id, Unit* u);
+
+	void PrintInfo();
 };
