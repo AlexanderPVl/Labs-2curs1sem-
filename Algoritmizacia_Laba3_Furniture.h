@@ -80,6 +80,7 @@ private:
 public:
 	using Furniture::AddTo;
 	SpetialFurniture();
+	SpetialFurniture(SpetialFurniture& spf, std::string &auth, int id_);
 	int GetHigh(std::string& auth) const;
 	int GetLeng(std::string& auth) const;
 	int GetDept(std::string& auth) const;
