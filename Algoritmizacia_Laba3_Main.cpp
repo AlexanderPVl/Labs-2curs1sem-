@@ -22,7 +22,7 @@ void StrategyFunc(){
 	unitarray.push_back(new Connor);
 
 	for (auto unit : unitarray){
-		unit->PrintInfo();
+	unit->PrintInfo();
 	}
 
 	//hab->Attac(*con);
@@ -41,7 +41,7 @@ void StrategyFunc(){
 	_sleep(2000);
 	unitarray[0]->Attac(*unitarray[1]);
 	unitarray[1]->PrintInfo();
-	
+
 	//con->PrintInfo();*/
 	Player player(1, std::string("Username"));
 	for (int i = 0; i < 3; ++i)
@@ -72,10 +72,10 @@ void FurnitureFunc(){
 	CombinedWardrobe* cw1 = new CombinedWardrobe;
 	SpetialFurniture* spf1 = new SpetialFurniture;
 	SecretFurniture* sef1 = new SecretFurniture;
-	for (int i = 0; i < 4; ++i) furn_vec.push_back(&table1);
-	for (int i = 0; i < 4; ++i) furn_vec.push_back(&table2);
-	for (int i = 0; i < 4; ++i) furn_vec.push_back(w1);
-	for (int i = 0; i < 2; ++i) furn_vec.push_back(cw1);
+	for (int i = 0; i < 4; ++i) table1.AddTo(furn_vec);
+	for (int i = 0; i < 4; ++i) table2.AddTo(furn_vec); //furn_vec.push_back(&table2);
+	for (int i = 0; i < 4; ++i) w1->AddTo(furn_vec); //furn_vec.push_back(w1);
+	for (int i = 0; i < 2; ++i) cw1->AddTo(furn_vec); //furn_vec.push_back(cw1);
 
 	for (auto a : furn_vec) a->PrintInfo();
 
