@@ -5,6 +5,7 @@
 Furniture::Furniture(){
 	measures = { 0, 0, 0 };
 	price = 0;
+	id = 0;
 	material = std::string(NULL_STR);
 }
 
@@ -18,12 +19,14 @@ Furniture::Furniture(int id_, int high_, int leng_, int dept_, int price_, std::
 }
 
 void Furniture::PrintInfo(){
+	std::cout << "ID: " << id << std::endl;
 	std::cout << std::right << "Measures (" << "H x L x D): " << GetHigh() << " x " << GetLeng() << " x " << GetDept() << std::endl;
 	std::cout << std::right << "Price: " << price << std::endl << "Material: " << material << std::endl;
 }
 
 //TABLE==============================
 Table::Table() : Furniture(){
+	id = 0;
 	measures.high = 0;
 	measures.leng = 0;
 	measures.dept = 0;
@@ -99,6 +102,16 @@ bool CorrectHash(std::string& str){
 
 SpetialFurniture::SpetialFurniture() : Furniture(){
 }
+
+SpetialFurniture::SpetialFurniture(SpetialFurniture& spf, std::string& auth, int id_){
+	measures.high = spf.measures.high;
+	measures.leng = spf.measures.leng;
+	measures.dept = spf.measures.dept;
+	material = spf.material;
+	price = spf.price;
+	id = id_;
+}
+
 
 int SpetialFurniture::GetHigh(std::string& auth) const{
 	if (CorrectHash(auth) == true)
