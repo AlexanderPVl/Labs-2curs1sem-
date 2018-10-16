@@ -3,6 +3,11 @@
 #include "Includes.h"
 #define FURNITURE_CONSTRUCT_ARGLIST id_, high_, leng_, dept_, price_, material_
 
+template<class T>
+void AddToVector(T* class_, std::vector<T*> &v){
+	v.push_back(class_);
+}
+
 class Furniture{
 protected:
 	typedef struct{
@@ -16,6 +21,11 @@ protected:
 	int price;
 	int id;
 public:
+	template<class T>
+	friend void AddToVector(T* class_, std::vector<T*> &v);
+	void AddTo(std::vector<Furniture*> &v){
+		AddToVector<Furniture>(this, v);
+	}
 	Furniture();
 	Furniture(int id_, int high_ = 0, int leng_ = 0, int dept_ = 0, int price_ = 0, std::string &material_ = std::string(NULL_STR));
 	int GetHigh() const { return measures.high; }
@@ -61,9 +71,11 @@ public:
 	void PrintInfo() override final;
 };
 
+bool CorrectHash(std::string& str);
+
 class SpetialFurniture : protected virtual Furniture{
 private:
-	bool CorrectHash(std::string& str) const;
+	friend bool CorrectHash(std::string& str);
 	void PrintInfo() override{ Furniture::PrintInfo(); }
 public:
 	SpetialFurniture();
@@ -76,7 +88,7 @@ public:
 
 class SecretFurniture : private SpetialFurniture{
 private:
-	bool CorrectHash(std::string& str) const;
+	friend bool CorrectHash(std::string& str);
 	void PrintInfo() override{ Furniture::PrintInfo(); }
 public:
 	SecretFurniture();
