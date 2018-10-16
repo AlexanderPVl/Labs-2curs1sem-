@@ -104,7 +104,7 @@ int SpetialFurniture::GetHigh(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.high;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -113,7 +113,7 @@ int SpetialFurniture::GetLeng(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.leng;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -122,7 +122,7 @@ int SpetialFurniture::GetDept(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.dept;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -131,7 +131,7 @@ int SpetialFurniture::GetPrice(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return price;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -140,7 +140,7 @@ int SpetialFurniture::GetID(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return price;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -158,7 +158,7 @@ int SecretFurniture::GetHigh(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.high;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -167,7 +167,7 @@ int SecretFurniture::GetLeng(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.leng;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -176,7 +176,7 @@ int SecretFurniture::GetDept(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return measures.dept;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -185,7 +185,7 @@ int SecretFurniture::GetPrice(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return price;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
@@ -194,7 +194,7 @@ int SecretFurniture::GetID(std::string& auth) const{
 	if (CorrectHash(auth) == true)
 		return price;
 	else{
-		std::cout << "access is denied" << std::endl << std::endl;
+		std::cout << "access has been denied" << std::endl << std::endl;
 		return -1;
 	}
 }
