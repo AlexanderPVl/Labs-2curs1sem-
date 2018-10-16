@@ -73,8 +73,8 @@ void FurnitureFunc(){
 	Table* t1 = new Table;
 	Wardrobe* w1 = new Wardrobe;
 	CombinedWardrobe* cw1 = new CombinedWardrobe;
-	SpetialFurniture* spf1 = new SpetialFurniture;
-	SpetialFurniture* spf2 = new SpetialFurniture(*spf1, std::string("ExampleKey"), 1024);
+	SpetialFurniture* spf1 = new SpetialFurniture(118, std::string("ExampleKey"));
+	SpetialFurniture* spf2 = new SpetialFurniture(*spf1, std::string("ExampleKey"), 1024, std::string("ExampleKey"));
 	SecretFurniture* sef1 = new SecretFurniture;
 	for (int i = 0; i < 4; ++i) table1.AddTo(furn_vec);
 	for (int i = 0; i < 4; ++i) table2.AddTo(furn_vec); //furn_vec.push_back(&table2);
