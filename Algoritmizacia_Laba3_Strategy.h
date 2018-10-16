@@ -9,6 +9,9 @@
 
 #define PI 3.141592653589793
 
+template<class T>
+extern void AddToVector(T* class_, std::vector<T*> &v);
+
 class Vector2{
 public:
 	double x;
@@ -37,6 +40,7 @@ bool operator == (const Vector2& v1, const Vector2& v2);
 class Unit{
 public:
 	Unit(){}
+	virtual void AddTo() {}
 	virtual void Hit(int) {}
 	virtual void Attac(Unit&) const {}
 	virtual Vector2& Move(double) = 0 {}
@@ -69,6 +73,9 @@ protected:
 
 public:
 
+	void AddTo(std::vector<Unit*> v){
+		AddToVector<Unit>(this, v);
+	}
 	void Hit(int n) final override;
 	void Attac(Unit& u) const override;
 	Vector2& Move(double) final override;
