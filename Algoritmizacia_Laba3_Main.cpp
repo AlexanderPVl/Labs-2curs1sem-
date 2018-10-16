@@ -6,6 +6,9 @@
 
 //#define ESC 27
 
+template<class T>
+extern void AddToVector(T* class_, std::vector<T*> &v);
+
 void StrategyFunc();
 void FurnitureFunc();
 int GetComand(std::string& command);
@@ -76,6 +79,11 @@ void FurnitureFunc(){
 	for (int i = 0; i < 4; ++i) table2.AddTo(furn_vec); //furn_vec.push_back(&table2);
 	for (int i = 0; i < 4; ++i) w1->AddTo(furn_vec); //furn_vec.push_back(w1);
 	for (int i = 0; i < 2; ++i) cw1->AddTo(furn_vec); //furn_vec.push_back(cw1);
+	//spf1->AddTo(furn_vec);
+	//sef1->AddTo(furn_vec);
+	//AddToVector<Furniture>(sef1, furn_vec);
+	spf1->AddTo(furn_vec);
+	sef1->AddTo(furn_vec);
 
 	for (auto a : furn_vec) a->PrintInfo();
 
