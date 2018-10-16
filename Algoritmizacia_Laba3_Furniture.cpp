@@ -73,7 +73,7 @@ CombinedWardrobe::CombinedWardrobe() : Wardrobe(), Table(){
 CombinedWardrobe::CombinedWardrobe(int id_, CombinedWardrobe &T){
 	name = std::string(NULL_STR);
 }
-CombinedWardrobe::CombinedWardrobe(int id_, int high_, int leng_, int dept_, int price_ , std::string &material_, std::string &shape_) : Wardrobe(id_, high_, leng_, dept_, price_, material_, 0), Table(id_, high_, leng_, dept_, price_, material_, shape_){
+CombinedWardrobe::CombinedWardrobe(int id_, int high_, int leng_, int dept_, int price_, std::string &material_, std::string &shape_) : Wardrobe(id_, high_, leng_, dept_, price_, material_, 0), Table(id_, high_, leng_, dept_, price_, material_, shape_){
 	name = std::string(NULL_STR);
 }
 const std::string& CombinedWardrobe::GetName() const { return name; }
@@ -84,11 +84,18 @@ void CombinedWardrobe::PrintInfo() {
 	std::cout << "Name: " << name << std::endl << std::endl;
 }
 
-//SPETIAL_FURNITURE===================
-bool SpetialFurniture::CorrectHash(std::string& str) const{
+//HASH================================
+
+bool CorrectHash(std::string& str){
 	//let's suppose that it is an ideal hash-function
 	return false;
 }
+
+//SPETIAL_FURNITURE===================
+/*bool SpetialFurniture::CorrectHash(std::string& str) const{
+	//let's suppose that it is an ideal hash-function
+	return false;
+}*/
 
 SpetialFurniture::SpetialFurniture() : Furniture(){
 }
@@ -139,10 +146,10 @@ int SpetialFurniture::GetID(std::string& auth) const{
 }
 
 //SECRET_FURNITURE===================
-bool SecretFurniture::CorrectHash(std::string& str) const{
+/*bool SecretFurniture::CorrectHash(std::string& str) const{
 	//let's suppose that it is an ideal hash-function
 	return false;
-}
+}*/
 
 SecretFurniture::SecretFurniture() : SpetialFurniture(){
 }
