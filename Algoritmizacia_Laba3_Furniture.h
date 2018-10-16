@@ -76,8 +76,9 @@ bool CorrectHash(std::string& str);
 class SpetialFurniture : protected virtual Furniture{
 private:
 	friend bool CorrectHash(std::string& str);
-	void PrintInfo() override{ Furniture::PrintInfo(); }
+	void PrintInfo() override{ std::cout << "It is a spetial furniture" << std::endl; Furniture::PrintInfo(); std::cout << std::endl; }
 public:
+	using Furniture::AddTo;
 	SpetialFurniture();
 	int GetHigh(std::string& auth) const;
 	int GetLeng(std::string& auth) const;
@@ -89,8 +90,9 @@ public:
 class SecretFurniture : private SpetialFurniture{
 private:
 	friend bool CorrectHash(std::string& str);
-	void PrintInfo() override{ Furniture::PrintInfo(); }
+	void PrintInfo() override{ std::cout << "It is a secret furniture" << std::endl; Furniture::PrintInfo(); std::cout << std::endl; }
 public:
+	using Furniture::AddTo;
 	SecretFurniture();
 	int GetHigh(std::string& auth) const;
 	int GetLeng(std::string& auth) const;
