@@ -1,6 +1,27 @@
 #include "Furniture.h"
 #include "Includes.h"
 
+std::string& Hash(std::string& str){
+	//let's suppose that it is ideal hash-function
+	return str;
+}
+
+bool CheckHash(std::string& auth, const std::string& correct_hash_){
+	if (correct_hash_ == std::string(NULL_STR)){
+		std::cout << "Error: hash is not initialised" << std::endl;
+		return false;
+	}
+	if (Hash(auth) == correct_hash_){
+		//std::cout << "access successful" << std::endl << std::endl;
+		return true;
+	}
+	else{
+		std::cout << "access has been denied" << std::endl << std::endl;
+		return false;
+	}
+	return false;
+}
+
 //FURNITURE==========================
 Furniture::Furniture(){
 	measures = { 0, 0, 0 };
@@ -100,10 +121,14 @@ bool CorrectHash(std::string& str){
 	return false;
 }*/
 
-SpetialFurniture::SpetialFurniture() : Furniture(){
+SpetialFurniture::SpetialFurniture() : Furniture(), correct_hash(NULL_STR){
 }
 
-SpetialFurniture::SpetialFurniture(SpetialFurniture& spf, std::string& auth, int id_){
+SpetialFurniture::SpetialFurniture(int id_, std::string& correct_hash_) : correct_hash(correct_hash_){
+	id = id_;
+}
+
+SpetialFurniture::SpetialFurniture(SpetialFurniture& spf, std::string& auth, int id_, std::string& correct_hash_) : correct_hash(correct_hash_){
 	measures.high = spf.measures.high;
 	measures.leng = spf.measures.leng;
 	measures.dept = spf.measures.dept;
@@ -114,48 +139,33 @@ SpetialFurniture::SpetialFurniture(SpetialFurniture& spf, std::string& auth, int
 
 
 int SpetialFurniture::GetHigh(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.high;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.high;
+	return -1;
 }
 
 int SpetialFurniture::GetLeng(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.leng;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.leng;
+	return -1;
 }
 
 int SpetialFurniture::GetDept(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.dept;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.dept;
+	return -1;
 }
 
 int SpetialFurniture::GetPrice(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return price;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return price;
+	return -1;
 }
 
 int SpetialFurniture::GetID(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return price;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return id;
+	return -1;
 }
 
 //SECRET_FURNITURE===================
@@ -164,50 +174,50 @@ int SpetialFurniture::GetID(std::string& auth) const{
 	return false;
 }*/
 
-SecretFurniture::SecretFurniture() : SpetialFurniture(){
+SecretFurniture::SecretFurniture() : SpetialFurniture(), correct_hash(NULL_STR){
+	//correct_hash = std::string(NULL_STR);
 }
 
+SecretFurniture::SecretFurniture(int id_, std::string& correct_hash_) : correct_hash(correct_hash_){
+	id = id_;
+}
+
+SecretFurniture::SecretFurniture(SecretFurniture& spf, std::string &auth, int id_, std::string& correct_hash_) : correct_hash(correct_hash_){
+	measures.high = spf.measures.high;
+	measures.leng = spf.measures.leng;
+	measures.dept = spf.measures.dept;
+	material = spf.material;
+	price = spf.price;
+	id = id_;
+}
+
+
 int SecretFurniture::GetHigh(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.high;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.high;
+	return -1;
 }
 
 int SecretFurniture::GetLeng(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.leng;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.leng;
+	return -1;
 }
 
 int SecretFurniture::GetDept(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return measures.dept;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return measures.dept;
+	return -1;
 }
 
 int SecretFurniture::GetPrice(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return price;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return price;
+	return -1;
 }
 
 int SecretFurniture::GetID(std::string& auth) const{
-	if (CorrectHash(auth) == true)
-		return price;
-	else{
-		std::cout << "access has been denied" << std::endl << std::endl;
-		return -1;
-	}
+	if (!CheckHash(auth, correct_hash))return -1;
+	if (CheckHash(auth, correct_hash))return id;
+	return -1;
 }
