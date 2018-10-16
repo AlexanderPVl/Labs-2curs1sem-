@@ -14,7 +14,7 @@ void Iterate();
 void StrategyFunc(){
 	std::cout << "STRATEGY FUNCTION:=======================================================" << std::endl;
 
-	std::vector<Unit*> unitarray;
+	/*std::vector<Unit*> unitarray;
 
 	//Connor* con = new Connor;
 	//Habib* hab = new Habib;
@@ -41,8 +41,24 @@ void StrategyFunc(){
 	_sleep(2000);
 	unitarray[0]->Attac(*unitarray[1]);
 	unitarray[1]->PrintInfo();
+	
+	//con->PrintInfo();*/
+	Player player(1, std::string("Username"));
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(0);
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(1);
+	for (int i = 0; i < 3; ++i)
+		player.AddUnit(2);
+	player.PrintUnitArray();
 
-	//con->PrintInfo();
+	Ferguson ferg;
+
+	player.ForEachUnitID_Attac(1, &ferg);
+	player.ForEachUnitID_Attac(1, &ferg);
+	player.ForEachUnitID_Attac(2, &ferg);
+
+	ferg.PrintInfo();
 
 }
 
@@ -53,11 +69,18 @@ void FurnitureFunc(){
 	Table table2(2, table1);
 	Table* t1 = new Table;
 	Wardrobe* w1 = new Wardrobe;
+	CombinedWardrobe* cw1 = new CombinedWardrobe;
+	SpetialFurniture* spf1 = new SpetialFurniture;
+	SecretFurniture* sef1 = new SecretFurniture;
 	for (int i = 0; i < 4; ++i) furn_vec.push_back(&table1);
 	for (int i = 0; i < 4; ++i) furn_vec.push_back(&table2);
 	for (int i = 0; i < 4; ++i) furn_vec.push_back(w1);
+	for (int i = 0; i < 2; ++i) furn_vec.push_back(cw1);
 
 	for (auto a : furn_vec) a->PrintInfo();
+
+	spf1->GetID(std::string("ExampleKey"));
+	sef1->GetDept(std::string("ExampleKey"));
 }
 
 int GetComand(std::string& command){
@@ -98,27 +121,12 @@ void Iterate(){
 
 int main(){
 	//Iterate();
-	//StrategyFunc();
+	StrategyFunc();
 	//std::cout << std::endl;
-	//FurnitureFunc();
+	FurnitureFunc();
 	//std::cout << Hash(std::string("123"));
 
-	Player player(1, std::string("Username"));
-	for (int i = 0; i < 3; ++i)
-		player.AddUnit(0);
-	for (int i = 0; i < 3; ++i)
-		player.AddUnit(1);
-	for (int i = 0; i < 3; ++i)
-		player.AddUnit(2);
-	player.PrintUnitArray();
 
-	Ferguson ferg;
-
-	player.ForEachUnitID_Attac(1, &ferg);
-	player.ForEachUnitID_Attac(1, &ferg);
-	player.ForEachUnitID_Attac(2, &ferg);
-
-	ferg.PrintInfo();
 
 	return 0;
 }
