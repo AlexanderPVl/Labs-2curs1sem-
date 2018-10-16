@@ -8,6 +8,10 @@ void AddToVector(T* class_, std::vector<T*> &v){
 	v.push_back(class_);
 }
 
+std::string& Hash(std::string& str);
+
+bool CheckHash(std::string& auth, const std::string& correct_hash_);
+
 class Furniture{
 protected:
 	typedef struct{
@@ -75,12 +79,14 @@ bool CorrectHash(std::string& str);
 
 class SpetialFurniture : protected virtual Furniture{
 private:
+	const std::string correct_hash;
 	friend bool CorrectHash(std::string& str);
 	void PrintInfo() override{ std::cout << "It is a spetial furniture" << std::endl; Furniture::PrintInfo(); std::cout << std::endl; }
 public:
 	using Furniture::AddTo;
 	SpetialFurniture();
-	SpetialFurniture(SpetialFurniture& spf, std::string &auth, int id_);
+	SpetialFurniture(int id_, std::string& correct_hash_);
+	SpetialFurniture(SpetialFurniture& spf, std::string &auth, int id_, std::string& correct_hash_);
 	int GetHigh(std::string& auth) const;
 	int GetLeng(std::string& auth) const;
 	int GetDept(std::string& auth) const;
@@ -90,11 +96,14 @@ public:
 
 class SecretFurniture : private SpetialFurniture{
 private:
+	const std::string correct_hash;
 	friend bool CorrectHash(std::string& str);
 	void PrintInfo() override{ std::cout << "It is a secret furniture" << std::endl; Furniture::PrintInfo(); std::cout << std::endl; }
 public:
 	using Furniture::AddTo;
 	SecretFurniture();
+	SecretFurniture(int id_, std::string& correct_hash_);
+	SecretFurniture(SecretFurniture& spf, std::string &auth, int id_, std::string& correct_hash_);
 	int GetHigh(std::string& auth) const;
 	int GetLeng(std::string& auth) const;
 	int GetDept(std::string& auth) const;
