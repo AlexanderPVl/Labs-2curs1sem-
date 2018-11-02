@@ -8,7 +8,7 @@ typedef unlim_vector<float>::t::iterator f_vect_iterator;
 typedef unlim_vector<int>::t::iterator i_vect_iterator;
 
 template<class T>
-void print(type_set<T>){
+void print(_type<T>){
 	cout << typeid(T).name();
 }
 
@@ -36,13 +36,18 @@ void vector_test() {
 
 	std::cout << std::endl << std::endl;
 
-	unlim_vector<int> d({ 1, 2, 3 });
+	unlim_vector<float> d({ 1.1F, 2.2F, 3.3F });
+	d.convert_to(_type<int>()).print();
+	cout << endl << "scalar product: "<< d.scalar_product(unlim_vector<int>({ 1, 2, 3 }));
+	cout << endl;
 }
 
 void matrix_test() {
-	std::cout << "===============Matrix test===============" << std::endl;
+	std::cout << endl << "===============Matrix test===============" << std::endl;
 	unlim_matrix<int> matr1(3, 4);
-	unlim_matrix<int> matr2({ { 1, 2, 3 }, { 2, 3, 4 }, { 3, 4, 5 } });
+	unlim_matrix<int> matr2({ { 1, 2, 3 },
+	                          { 2, 3, 4 },
+							  { 3, 4, 5 } });
 	matr1.print();
 	matr2.print();
 
@@ -51,7 +56,7 @@ void matrix_test() {
 int main() {
 	vector_test();
 	matrix_test();
-	print<int>(type_set<int>());
+	print<int>(_type<int>());
 
 	return 0;
 }
