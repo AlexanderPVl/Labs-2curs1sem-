@@ -24,11 +24,11 @@ public:
 	int get_dimention() const;
 	double p_norme(int p) const;
 	template<typename U>
-	double scalar_product(unlim_vector<U> vect) const;
+	double scalar_product(unlim_vector<U> &vect) const;
 	void print() const;
 	int set(const vector<T> &vect);
 	template<typename U>
-	unlim_vector<U> convert_to(_type<U>) const;
+	unlim_vector<U> convert_to(_type<U>&) const;
 
 	template<class Iter, class BinaryFunction>
 	int for_each(Iter it, BinaryFunction f);
@@ -109,7 +109,7 @@ double unlim_vector<T>::p_norme(int p) const {
 
 template<typename T>
 template<typename U>
-double unlim_vector<T>::scalar_product(unlim_vector<U> vect) const {
+double unlim_vector<T>::scalar_product(unlim_vector<U> &vect) const {
 	double sum = 0;
 	if (empty || vect.is_empty())
 		throw except_empty_container("Vector is empty");
@@ -154,7 +154,7 @@ int unlim_vector<T>::set(const vector<T> &vect) {
 
 template<typename T>
 template<typename U>
-unlim_vector<U> unlim_vector<T>::convert_to(_type<U>) const {
+unlim_vector<U> unlim_vector<T>::convert_to(_type<U>&) const {
 	unlim_vector<U> empty_vect;
 	vector<U> buf_vect;
 	if (empty) return empty_vect;
