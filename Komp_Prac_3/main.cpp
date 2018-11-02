@@ -44,13 +44,14 @@ void vector_test() {
 
 void matrix_test() {
 	std::cout << endl << "===============Matrix test===============" << std::endl;
-	unlim_matrix<int> matr1(3, 4);
-	unlim_matrix<int> matr2({ { 1, 2, 3 },
-	                          { 2, 3, 4 },
-							  { 3, 4, 5 } });
-	matr1.print();
-	matr2.print();
-
+	unlim_matrix<int> matr1(3, 3);
+	unlim_matrix<float> matr2({ { 1.1f, 2, 3 },
+	                            { 2, 3.3f, 4 },
+							    { 3, 4, 5.5f } });
+	cout << "Matrix 1 (int):" << endl; matr1.print(' ', 3);
+	cout << "Matrix 2 (float):" << endl; matr2.print(' ', 3);
+	cout << "Hadamard product:" << endl; matr2.hadamard_product(matr1).print(' ', 7);
+	cout << "Matrix 2 convert from \'float\' to \'int\':" << endl; matr2.convert_to(_type<int>()).print(' ', 2);
 }
 
 int main() {
