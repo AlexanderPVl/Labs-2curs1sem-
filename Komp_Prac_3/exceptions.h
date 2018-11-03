@@ -26,4 +26,12 @@ public:
 	except_non_compatible(const char* msg) : exception(msg) { cout << "\n" << msg << endl; }
 };
 
+template<class T>
+class except_vrong_type : public exception {
+public:
+	except_vrong_type() : exception("Unavailable data type") { cout << "\n" << "Unavailable data type \"" << typeid(T).name() << "\"" << endl; }
+	except_vrong_type(const char* msg) : exception(msg) { cout << "\n" << msg << endl; }
+	typedef T type;
+};
+
 #endif
