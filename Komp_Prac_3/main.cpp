@@ -7,11 +7,6 @@ typedef unlim_vector<double>::t::iterator d_vect_iterator;
 typedef unlim_vector<float>::t::iterator f_vect_iterator;
 typedef unlim_vector<int>::t::iterator i_vect_iterator;
 
-template<class T>
-void print(_type<T>){
-	cout << typeid(T).name();
-}
-
 void vector_test() {
 	std::cout << "===============Vector test===============" << std::endl;
 	unlim_vector<int> a;
@@ -51,13 +46,28 @@ void matrix_test() {
 	cout << "Matrix 1 (int):" << endl; matr1.print(' ', 3);
 	cout << "Matrix 2 (float):" << endl; matr2.print(' ', 3);
 	cout << "Hadamard product:" << endl; matr2.hadamard_product(matr1).print(' ', 7);
-	cout << "Matrix 2 convert from \'float\' to \'int\':" << endl; matr2.convert_to(_type<int>()).print(' ', 2);
+	cout << "Matrix 2 convert from \'float\' to \'int\':" << endl; matr2.convert_to<int>().print(' ', 2);
+	(matr2 + matr2).convert_to<int>().print();
+}
+
+void convert_to_int() {
+	cout << "Checking convertability of standart types to int (0 - false, 1 - true)";
+	cout << endl << "char to int: " << int_convertable<char>();
+	cout << endl << "float to int: " << int_convertable<float>();
+	cout << endl << "double to int: " << int_convertable<double>();
+	cout << endl << "void to int: " << int_convertable<void>();
+	cout << endl << endl;
 }
 
 int main() {
+	cout << "Program start." << endl << endl;
+
+	convert_to_int();
+
 	vector_test();
 	matrix_test();
-	print<int>(_type<int>());
+
+	cout << "Program ran to the end" << endl;
 
 	return 0;
 }
