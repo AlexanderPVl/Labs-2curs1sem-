@@ -29,6 +29,8 @@ public:
 	int set(const vector<T> &vect);
 	template<typename U>
 	unlim_vector<U> convert_to(_type<U>&) const;
+	template<typename U>
+	unlim_vector<U> convert_to() const;
 
 	template<class Iter, class BinaryFunction>
 	int for_each(Iter it, BinaryFunction f);
@@ -46,12 +48,14 @@ unlim_vector<char> empty_unlim_vector;
 
 template<typename T>
 unlim_vector<T>::unlim_vector() : vector_s(), vector_p(vector_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	empty = true;
 	dimention = 0;
 }
 
 template<typename T>
 unlim_vector<T>::unlim_vector(int dim_) : vector_p(vector_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	if (dim_ > 0) {
 		vector_s.assign(dim_, (T)0);
 		dimention = dim_;
@@ -64,6 +68,7 @@ unlim_vector<T>::unlim_vector(int dim_) : vector_p(vector_s) {
 
 template<typename T>
 unlim_vector<T>::unlim_vector(const vector<T> &vect) : vector_s(vect), vector_p(vector_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	dimention = vect.size();
 	if (vect.empty()){
 		dimention = 0;
@@ -77,6 +82,7 @@ unlim_vector<T>::unlim_vector(const vector<T> &vect) : vector_s(vect), vector_p(
 
 template<typename T>
 unlim_vector<T>::unlim_vector(const unlim_vector<T> &vect) : vector_s(vect.vector_s), vector_p(vector_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	empty = vect.empty;
 	dimention = vect.dimention;
 }
@@ -110,6 +116,7 @@ double unlim_vector<T>::p_norme(int p) const {
 template<typename T>
 template<typename U>
 double unlim_vector<T>::scalar_product(unlim_vector<U> &vect) const {
+	if (!int_convertable<U>()) throw except_vrong_type<T>();
 	double sum = 0;
 	if (empty || vect.is_empty())
 		throw except_empty_container("Vector is empty");
@@ -155,6 +162,21 @@ int unlim_vector<T>::set(const vector<T> &vect) {
 template<typename T>
 template<typename U>
 unlim_vector<U> unlim_vector<T>::convert_to(_type<U>&) const {
+	if (!int_convertable<U>()) throw except_vrong_type<T>();
+	unlim_vector<U> empty_vect;
+	vector<U> buf_vect;
+	if (empty) return empty_vect;
+	for (auto it : vector_s){
+		buf_vect.push_back((U)it);
+	}
+	unlim_vector<U> new_vect(buf_vect);
+	return new_vect;
+}
+
+template<typename T>
+template<typename U>
+unlim_vector<U> unlim_vector<T>::convert_to() const {
+	if (!int_convertable<U>()) throw except_vrong_type<T>();
 	unlim_vector<U> empty_vect;
 	vector<U> buf_vect;
 	if (empty) return empty_vect;
@@ -182,8 +204,8 @@ int unlim_vector<T>::for_(Iter first, Iter last, BinaryFunction f) {
 template<typename T>
 unlim_vector<T> operator + (const unlim_vector<T> &vect1, const unlim_vector<T> &vect2) {
 	unlim_vector<T> vect(vect1);
-	if (!vect1.is_compatible_with(vect2)) return empty_unlim_vector.convert_to(_type<T>());
-	if (vect.get_dimention() != vect2.get_dimention()) return empty_unlim_vector.convert_to(_type<T>());
+	if (!vect1.is_compatible_with(vect2)) return empty_unlim_vector.convert_to<T>();
+	if (vect.get_dimention() != vect2.get_dimention()) return empty_unlim_vector.convert_to<T>();
 	int dim = vect.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] += vect2.vector_p[i]; }
 	return vect;
@@ -192,8 +214,8 @@ unlim_vector<T> operator + (const unlim_vector<T> &vect1, const unlim_vector<T> 
 template<typename T>
 unlim_vector<T> operator - (const unlim_vector<T> &vect1, const unlim_vector<T> &vect2) {
 	unlim_vector<T> vect(vect1);
-	if (!vect1.is_compatible_with(vect2)) return empty_unlim_vector.convert_to(_type<T>());
-	if (vect.get_dimention() != vect2.get_dimention()) return empty_unlim_vector.convert_to(_type<T>());
+	if (!vect1.is_compatible_with(vect2)) return empty_unlim_vector.convert_to<T>();
+	if (vect.get_dimention() != vect2.get_dimention()) return empty_unlim_vector.convert_to<T>();
 	int dim = vect.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] -= vect2.vector_p[i]; }
 	return vect;
@@ -202,7 +224,7 @@ unlim_vector<T> operator - (const unlim_vector<T> &vect1, const unlim_vector<T> 
 template<typename T, typename D>
 unlim_vector<T> operator * (const unlim_vector<T> &vect1, D mul) {
 	unlim_vector<T> vect(vect1);
-	if (vect1.is_empty() || vect1.get_dimention() == 0) return empty_unlim_vector.convert_to(_type<T>());
+	if (vect1.is_empty() || vect1.get_dimention() == 0) return empty_unlim_vector.convert_to<T>();
 	int dim = vect.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] = (int)(vect.vector_p[i] * mul); }
 	return vect;
@@ -211,7 +233,7 @@ unlim_vector<T> operator * (const unlim_vector<T> &vect1, D mul) {
 template<typename T, typename D>
 unlim_vector<T> operator * (D mul, const unlim_vector<T> &vect1) {
 	unlim_vector<T> vect(vect1);
-	if (vect1.is_empty() || vect1.get_dimention() == 0) return empty_unlim_vector.convert_to(_type<T>());
+	if (vect1.is_empty() || vect1.get_dimention() == 0) return empty_unlim_vector.convert_to<T>();
 	int dim = vect.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] = (int)(vect.vector_p[i] * mul); }
 	return vect;
@@ -221,7 +243,7 @@ template<typename D>
 unlim_vector<D> operator * (const unlim_vector<int> &vect1, D mul) {
 	unlim_vector<D> vect;
 	if (vect1.is_empty() || vect1.get_dimention() == 0)
-		return empty_unlim_vector.convert_to(_type<D>());
+		return empty_unlim_vector.convert_to<D>();
 	vect.vector_p.insert(vect.vector_p.begin(), vect1.vector_p.begin(), vect1.vector_p.end());
 	int dim = vect1.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] = (D)vect.vector_p[i] * mul; }
@@ -232,7 +254,7 @@ template<typename D>
 unlim_vector<D> operator * (D mul, const unlim_vector<int> &vect1) {
 	unlim_vector<D> vect;
 	if (vect1.is_empty() || vect1.get_dimention() == 0)
-		return empty_unlim_vector.convert_to(_type<D>());
+		return empty_unlim_vector.convert_to<D>();
 	vect.vector_p.insert(vect.vector_p.begin(), vect1.vector_p.begin(), vect1.vector_p.end());
 	int dim = vect1.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] = (D)vect.vector_p[i] * mul; }
