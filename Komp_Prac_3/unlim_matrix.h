@@ -24,7 +24,9 @@ public:
 	bool is_correct() const;
 	bool is_empty() const;
 	template<typename U>
-	int is_compatible_with(const unlim_matrix<U> &vect) const;
+	int is_compatible_with(const unlim_matrix<U> &matr) const;
+	template<typename U>
+	unlim_matrix<U> convert_to();
 	template<typename U>
 	unlim_matrix<U> convert_to(_type<U>&);
 	void print(char sep = ' ', int setw_arg = 1) const;
@@ -47,6 +49,7 @@ unlim_matrix<char> empty_unlim_matrix;
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix() : matrix_s(), matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	row_cnt = 0;
 	col_cnt = 0;
 	empty = true;
@@ -55,6 +58,7 @@ unlim_matrix<T>::unlim_matrix() : matrix_s(), matrix_p(matrix_s) {
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(int row_, int col_) : matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	int i;
 	row_cnt = row_;
 	col_cnt = col_;
@@ -73,6 +77,7 @@ unlim_matrix<T>::unlim_matrix(int row_, int col_) : matrix_p(matrix_s) {
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(vector<vector<T> > matr) : matrix_s(matr), matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	int col;
 	if (matr.empty()) { empty = true; }
 	else empty = false;
@@ -92,6 +97,7 @@ unlim_matrix<T>::unlim_matrix(vector<vector<T> > matr) : matrix_s(matr), matrix_
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(vector<vector<T> > &matr) : matrix_s(matr), matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	int col;
 	if (matr.empty()) { empty = true; }
 	else empty = false;
@@ -103,6 +109,7 @@ unlim_matrix<T>::unlim_matrix(vector<vector<T> > &matr) : matrix_s(matr), matrix
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(vector<vector<T> > &matr, bool ref_only) : matrix_s(matr), matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	int col;
 	if (matr.empty()) { empty = true; }
 	else empty = false;
@@ -114,6 +121,7 @@ unlim_matrix<T>::unlim_matrix(vector<vector<T> > &matr, bool ref_only) : matrix_
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(unlim_matrix<T> &matr) : matrix_s(matr.matrix_s), matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	empty = matr.empty;
 	correct = matr.correct;
 	row_cnt = 0;
@@ -152,16 +160,46 @@ bool unlim_matrix<T>::is_empty() const { return empty; }
 
 template<typename T>
 template<typename U>
-int unlim_matrix<T>::is_compatible_with(const unlim_matrix<U> &vect) const {
+int unlim_matrix<T>::is_compatible_with(const unlim_matrix<U> &matr) const {
+	if (empty || matr.empty || !correct || !matr.correct) return 0;
+	if (typeid(T) == typeid(U)) return 1;
+	else return 2;
+}
 
+template<typename T>
+template<typename U>
+unlim_matrix<U> unlim_matrix<T>::convert_to(){
+	if (!int_convertable<U>()) throw except_vrong_type<T>();
+	int i, j;
+	vector<vector<U> > buf_matr;
+	unlim_matrix<U> empty_matr;
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (empty || !correct)return empty_matr;
+	for (i = 0; i < row_cnt; ++i){
+		buf_matr.push_back(vector<U>());
+		for (j = 0; j < col_cnt; ++j){
+			buf_matr[i].push_back((U)matrix_s[i][j]);
+		}
+	}
+	for (i = 0; (unsigned int)i < buf_matr.size(); ++i){
+		for (j = 0; (unsigned int)j < buf_matr[0].size(); ++j){ buf_matr[i][j] = (U)matrix_s[i][j]; }
+	}
+	unlim_matrix<U> new_matr(buf_matr, true);
+	new_matr.set_empty(empty);
+	new_matr.set_correct(correct);
+	new_matr.set_row_cnt(row_cnt);
+	new_matr.set_col_cnt(col_cnt);
+	return new_matr;
 }
 
 template<typename T>
 template<typename U>
 unlim_matrix<U> unlim_matrix<T>::convert_to(_type<U>&){
+	if (!int_convertable<U>()) throw except_vrong_type<T>();
 	int i, j;
 	vector<vector<U> > buf_matr;
 	unlim_matrix<U> empty_matr;
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
 	if (empty || !correct)return empty_matr;
 	for (i = 0; i < row_cnt; ++i){
 		buf_matr.push_back(vector<U>());
@@ -198,9 +236,9 @@ template<typename T>
 template<typename U>
 unlim_matrix<U> unlim_matrix<T>::hadamard_product(unlim_matrix<U> &matr) const {
 	int i, j;
-	unlim_matrix<U> conv_matr(matr.convert_to(_type<U>()));
-	if (empty || conv_matr.is_empty()) { return empty_unlim_matrix.convert_to(_type<U>()); }
-	if (row_cnt != conv_matr.get_row_cnt() || col_cnt != conv_matr.get_col_cnt()) { return empty_unlim_matrix.convert_to(_type<U>()); }
+	unlim_matrix<U> conv_matr(matr.convert_to<U>());
+	if (empty || conv_matr.is_empty()) { return empty_unlim_matrix.convert_to<U>(); }
+	if (row_cnt != conv_matr.get_row_cnt() || col_cnt != conv_matr.get_col_cnt()) { return empty_unlim_matrix.convert_to<U>(); }
 	unlim_matrix<U> new_matr(row_cnt, col_cnt);
 	for (i = 0; i < row_cnt; ++i){
 		for (j = 0; j < col_cnt; ++j){
@@ -213,8 +251,17 @@ unlim_matrix<U> unlim_matrix<T>::hadamard_product(unlim_matrix<U> &matr) const {
 // OPERATORS ======================================================
 template<typename T, typename U>
 unlim_matrix<T> operator + (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2))return empty_unlim_matrix.convert_to<T>();
 	unlim_matrix<T> matr(matr1);
-	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to(_type<T>);
+	int i, j, row, col;
+	row = matr1.get_row_cnt();
+	col = matr1.get_col_cnt();
+	for (i = 0; i < row; ++i) {
+		for (j = 0; j < col; ++j){ matr.matrix_p[i][j] += matr2.matrix_p[i][j]; }
+	}
+	return matr;
 }
 
 #endif
