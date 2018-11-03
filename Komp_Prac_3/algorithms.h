@@ -15,9 +15,20 @@ struct EmptyType{};
 
 template<class T>
 struct _type{
-	_type() {};
+	_type() = default;
 	typedef T type;
 };
+
+typedef char Small;
+struct Big{ char dummy[2]; };
+Small TestU(int);
+Big TestU(...);
+template<class T>
+T make_t();
+template<class T>
+bool int_convertable() { return sizeof(TestU(make_t<T>())) == 1; }
+template<>
+bool int_convertable<void>() { return 0; }
 
 template<class T, class U>
 struct TypeList{
