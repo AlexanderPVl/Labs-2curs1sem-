@@ -1,7 +1,10 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+#include <math.h>
+
 #define TYPELIST_3(T1, T2, T3) TypeList< T1, TypeList<T2, T3> >
+#define PI 3.1415926535
 
 template<class InputIt, class BinaryFunction>
 int range_for(const InputIt first, const InputIt last, BinaryFunction f)
@@ -35,5 +38,10 @@ struct TypeList{
 	typedef T head;
 	typedef U tail;
 };
+
+template<typename T>
+T module(T var) { return (var > 0) ? var : -var; }
+
+const double _eps = 1E-9;
 
 #endif
