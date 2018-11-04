@@ -23,8 +23,11 @@ public:
 	int is_compatible_with(const unlim_vector<U> &vect) const; // 0 - not compatible, 1 - full compatibility, 2 - not empty, equal size, but different types
 	int get_dimention() const;
 	double p_norme(int p) const;
+	T max_norme() const;
 	template<typename U>
 	double scalar_product(unlim_vector<U> &vect) const;
+	template<typename U>
+	double angle_to(unlim_vector<U> &vect) const;
 	void print() const;
 	int set(const vector<T> &vect);
 	template<typename U>
@@ -109,14 +112,23 @@ double unlim_vector<T>::p_norme(int p) const {
 	T d = 0;
 	if (empty || dimention == 0)
 		throw except_empty_container("Incorrect data or vector is empty", empty, dimention);
-	for (auto it : vector_p) { d += it*it; }
-	return sqrt((double)d);
+	for (auto it : vector_p) { d += (T)pow(it, p); }
+	return pow((double)d, 1/(double)p);
+}
+
+template<typename T>
+T unlim_vector<T>::max_norme() const {
+	T max = 0;
+	if (empty || dimention == 0)
+		throw except_empty_container("Incorrect data or vector is empty", empty, dimention);
+	for (auto it : vector_p) { if (max < module(it))max = module(it); }
+	return max;
 }
 
 template<typename T>
 template<typename U>
 double unlim_vector<T>::scalar_product(unlim_vector<U> &vect) const {
-	if (!int_convertable<U>()) throw except_vrong_type<T>();
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
 	double sum = 0;
 	if (empty || vect.is_empty())
 		throw except_empty_container("Vector is empty");
@@ -126,6 +138,19 @@ double unlim_vector<T>::scalar_product(unlim_vector<U> &vect) const {
 		sum += vector_s[i] * vect.vector_p[i];
 	}
 	return sum;
+}
+
+template<typename T>
+template<typename U>
+double unlim_vector<T>::angle_to(unlim_vector<U> &vect) const {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (empty || vect.is_empty())
+		throw except_empty_container("Vector is empty");
+	if (dimention != vect.get_dimention())
+		throw except_non_compatible("Vector have dimmerent dimentions");
+	double _arcos;
+	_arcos = acos(scalar_product(vect) / (p_norme(2) * vect.p_norme(2)));
+	return _arcos * 180 / PI;
 }
 
 template<typename T>
@@ -201,6 +226,8 @@ int unlim_vector<T>::for_(Iter first, Iter last, BinaryFunction f) {
 	return 0;
 }
 
+// OPERATORS =============================================================================
+
 template<typename T>
 unlim_vector<T> operator + (const unlim_vector<T> &vect1, const unlim_vector<T> &vect2) {
 	unlim_vector<T> vect(vect1);
@@ -252,7 +279,7 @@ unlim_vector<D> operator * (const unlim_vector<int> &vect1, D mul) {
 
 template<typename D>
 unlim_vector<D> operator * (D mul, const unlim_vector<int> &vect1) {
-	unlim_vector<D> vect;
+	unlim_vector<D> vect(vect1);
 	if (vect1.is_empty() || vect1.get_dimention() == 0)
 		return empty_unlim_vector.convert_to<D>();
 	vect.vector_p.insert(vect.vector_p.begin(), vect1.vector_p.begin(), vect1.vector_p.end());
