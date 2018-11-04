@@ -34,4 +34,17 @@ public:
 	typedef T type;
 };
 
+class except_index_out_of_range : public exception {
+public:
+	except_index_out_of_range(int ind) : exception("Index has ran out of range") {
+		cout << "\n" << "Index has ran out of range (" << ind << ")" << endl;
+		index = ind;
+	}
+	except_index_out_of_range(int ind, const char* msg) : exception(msg) {
+		cout << "\n" << msg << endl;
+		index = ind;
+	}
+	int index;
+};
+
 #endif
