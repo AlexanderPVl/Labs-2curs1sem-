@@ -23,6 +23,11 @@ public:
 
 	bool is_correct() const;
 	bool is_empty() const;
+	bool is_square() const;
+	bool is_identical() const;
+	bool is_symmetric() const;
+	bool is_upptriangle() const;
+	bool is_lowtriangle() const;
 	template<typename U>
 	int is_compatible_with(const unlim_matrix<U> &matr) const;
 	template<typename U>
@@ -33,9 +38,19 @@ public:
 
 	template<typename U>
 	unlim_matrix<U> hadamard_product(unlim_matrix<U> &matr) const;
+	double frobenius_norme() const;
+	T trace() const;
+	unlim_matrix<T> algebr_compl(int row, int col);
+	unlim_matrix<T> transpose();
+	int rank() const;
+	friend T determinant(unlim_matrix<T>& matr);
+	friend unlim_matrix<double> inverse(unlim_matrix<T> &matr);
+
+	vector<T>& operator [](int ind);
+	void operator = (unlim_matrix<T> &matr);
 
 	vector<vector <T> > &matrix_p;
-private:
+protected:
 	vector<vector <T> > matrix_s;
 	int row_cnt;
 	int col_cnt;
@@ -159,9 +174,57 @@ template<typename T>
 bool unlim_matrix<T>::is_empty() const { return empty; }
 
 template<typename T>
+bool unlim_matrix<T>::is_square() const {
+	if (empty || !correct || row_cnt != col_cnt) return false;
+	else return true;
+}
+
+template<typename T>
+bool unlim_matrix<T>::is_identical() const {
+	if (!is_square()) return false;
+	int i, j;
+	for (i = 0; i < row_cnt; ++i) {
+		for (j = 0; j < i; ++j) { if (matrix_s[i][j] != 0) return false; }
+		for (j = i + 1; j < col_cnt; ++j) { if (matrix_s[i][j] != 0) return false; }
+		if (matrix_s[i][i] != 1)return false;
+	}
+	return true;
+}
+
+template<typename T>
+bool unlim_matrix<T>::is_symmetric() const {
+	if (!is_square()) return false;
+	int i, j;
+	for (i = 0; i < row_cnt; ++i) {
+		for (j = 0; j < i; ++j) { if (matrix_s[i][j] != matrix_s[j][i]) return false; }
+	}
+	return true;
+}
+
+template<typename T>
+bool unlim_matrix<T>::is_upptriangle() const {
+	if (!is_square()) return false;
+	int i, j;
+	for (i = 0; i < row_cnt; ++i) {
+		for (j = 0; j < i; ++j) { if (matrix_s[i][j] != 0) return false; }
+	}
+	return true;
+}
+
+template<typename T>
+bool unlim_matrix<T>::is_lowtriangle() const {
+	if (!is_square()) return false;
+	int i, j;
+	for (i = 0; i < row_cnt; ++i) {
+		for (j = i + 1; j < col_cnt; ++j) { if (matrix_s[i][j] != 0) return false; }
+	}
+	return true;
+}
+
+template<typename T>
 template<typename U>
 int unlim_matrix<T>::is_compatible_with(const unlim_matrix<U> &matr) const {
-	if (empty || matr.empty || !correct || !matr.correct) return 0;
+	if (empty || matr.is_empty() || !correct || !matr.is_correct()) return 0;
 	if (typeid(T) == typeid(U)) return 1;
 	else return 2;
 }
@@ -220,9 +283,8 @@ unlim_matrix<U> unlim_matrix<T>::convert_to(_type<U>&){
 
 template<typename T>
 void unlim_matrix<T>::print(char sep, int setw_arg) const {
-	if (empty & !row_cnt && !col_cnt) {
+	if (empty || !correct) {
 		cout << "{ }";
-	} else if (empty || !correct) {
 		return;
 	}
 	for (auto v : matrix_s){
@@ -248,10 +310,95 @@ unlim_matrix<U> unlim_matrix<T>::hadamard_product(unlim_matrix<U> &matr) const {
 	return new_matr;
 }
 
+template<typename T>
+double unlim_matrix<T>::frobenius_norme() const {
+	if (empty || !correct) throw except_empty_container();
+	double sum = 0;
+	for (auto v : matrix_s){
+		for (auto vv : v){
+			sum += vv*vv;
+		}
+	}
+	return sqrt(sum);
+}
+
+template<typename T>
+T unlim_matrix<T>::trace() const {
+	int i;
+	T sum = 0;
+	if (!is_square()) throw except_non_compatible("Matrix is not square");
+	else {
+		for (i = 0; i < row_cnt; ++i) {
+			sum += matrix_s[i][i];
+		}
+	}
+	return sum;
+}
+
+template<typename T>
+unlim_matrix<T> unlim_matrix<T>::algebr_compl(int row, int col) {
+	if (empty || !correct) return empty_unlim_matrix.convert_to<T>();
+	if (row < 0 || row_cnt <= row) throw except_index_out_of_range(row);
+	if (col < 0 || col_cnt <= col) throw except_index_out_of_range(col);
+	unlim_matrix<T> new_matr(row_cnt - 1, col_cnt - 1);
+	int i, j;
+	for (i = 0; i < row; ++i){
+		for (j = 0; j < col; ++j){
+			new_matr.matrix_s[i][j] = matrix_s[i][j];
+		}
+		for (j = col + 1; j < col_cnt; ++j){
+			new_matr.matrix_s[i][j - 1] = matrix_s[i][j];
+		}
+	}
+	for (i = row + 1; i < row_cnt; ++i){
+		for (j = 0; j < col; ++j){
+			new_matr.matrix_s[i - 1][j] = matrix_s[i][j];
+		}
+		for (j = col + 1; j < col_cnt; ++j){
+			new_matr.matrix_s[i - 1][j - 1] = matrix_s[i][j];
+		}
+	}
+	return new_matr;
+}
+
+template<typename T>
+unlim_matrix<T> unlim_matrix<T>::transpose() {
+	if (empty || !correct) return empty_unlim_matrix.convert_to<T>();
+	unlim_matrix<T> transp(col_cnt, row_cnt);
+	int i, j;
+	for (i = 0; i < row_cnt; ++i) {
+		for (j = 0; j < col_cnt; ++j) {
+			transp.matrix_p[j][i] = matrix_s[i][j];
+		}
+	}
+	transp.empty = false;
+	transp.correct = true;
+	return transp;
+}
+
+template<typename T>
+int unlim_matrix<T>::rank() const {
+
+}
+
 // OPERATORS ======================================================
+
+template<typename T>
+void unlim_matrix<T>::operator = (unlim_matrix<T> &matr) {
+	correct = matr.correct;
+	matrix_s(matr.matrix_s);
+}
+
+template<typename T>
+vector<T>& unlim_matrix<T>::operator [](int ind) {
+	if (ind < 0 || row_cnt <= ind) throw except_index_out_of_range(ind);
+	else return matrix_s[ind];
+}
+
 template<typename T, typename U>
 unlim_matrix<T> operator + (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
 	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
 	if (!matr1.is_compatible_with(matr2))return empty_unlim_matrix.convert_to<T>();
 	unlim_matrix<T> matr(matr1);
@@ -262,6 +409,112 @@ unlim_matrix<T> operator + (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
 		for (j = 0; j < col; ++j){ matr.matrix_p[i][j] += matr2.matrix_p[i][j]; }
 	}
 	return matr;
+}
+
+template<typename T, typename U>
+unlim_matrix<T> operator - (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2))return empty_unlim_matrix.convert_to<T>();
+	unlim_matrix<T> matr(matr1);
+	int i, j, row, col;
+	row = matr1.get_row_cnt();
+	col = matr1.get_col_cnt();
+	for (i = 0; i < row; ++i) {
+		for (j = 0; j < col; ++j){ matr.matrix_p[i][j] -= matr2.matrix_p[i][j]; }
+	}
+	return matr;
+}
+
+template<typename T, typename U>
+unlim_matrix<T> operator * (unlim_matrix<T> &matr1, U n) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr1.is_empty() || !matr1.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	unlim_matrix<T> matr(matr1);
+	int i, j, row, col;
+	row = matr1.get_row_cnt();
+	col = matr1.get_col_cnt();
+	for (i = 0; i < row; ++i) {
+		for (j = 0; j < col; ++j){ matr.matrix_p[i][j] *= (T)n; }
+	}
+	return matr;
+}
+
+template<typename T, typename U>
+unlim_matrix<T> operator * (U n, unlim_matrix<T> &matr1) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr1.is_empty() || !matr1.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	unlim_matrix<T> matr(matr1);
+	int i, j, row, col;
+	row = matr1.get_row_cnt();
+	col = matr1.get_col_cnt();
+	for (i = 0; i < row; ++i) {
+		for (j = 0; j < col; ++j){ matr.matrix_p[i][j] *= (T)n; }
+	}
+	return matr;
+}
+
+template<typename T, typename U>
+unlim_matrix<T> operator * (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2) || matr1.get_col_cnt() != matr2.get_row_cnt())return empty_unlim_matrix.convert_to<T>();
+	int i, j, k;
+	T sum;
+	int row1 = matr1.get_row_cnt();
+	int col1 = matr1.get_col_cnt();
+	int row2 = matr2.get_row_cnt();
+	int col2 = matr2.get_col_cnt();
+	unlim_matrix<T> matr(row1, col2);
+	for (i = 0; i < row1; ++i) {
+		for (j = 0; j < col2; ++j){
+			sum = 0;
+			for (k = 0; k < col1; ++k){
+				sum += matr1[i][k] * matr2[k][j];
+			}
+			matr[i][j] = sum;
+		}
+	}
+	return matr;
+}
+
+// NON_MEMBER FUNCTIONS =======================================================================
+
+template<typename T>
+T determinant(unlim_matrix<T> &matr) {
+	T sum = 0;
+	int i, col, neg = 1;
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (!matr.is_square()) throw except_non_compatible("Matrix is not square");
+	if (matr.get_row_cnt() == 2) {
+		return (matr.matrix_p[0][0] * matr.matrix_p[1][1] - matr.matrix_p[0][1] * matr.matrix_p[1][0]);
+	} else {
+		col = matr.get_col_cnt();
+		for (i = 0; i < col; ++i, neg *= -1){
+			sum += neg * matr.matrix_p[0][i] * determinant<T>(matr.algebr_compl(0, i));
+		}
+	}
+	return sum;
+}
+
+template<typename T>
+unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
+	if (matr.is_empty() || !matr.is_correct() || !matr.is_square()) return empty_unlim_matrix.convert_to<double>();
+	int i, j;
+	int row = matr.get_row_cnt();
+	int col = matr.get_col_cnt();
+	unlim_matrix<double> inv_matr(row, col);
+	double deter = determinant<T>(matr);
+	for (i = 0; i < row; ++i){
+		for (j = 0; j < col; ++j){
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0)?1:-1) * determinant<T>(matr.algebr_compl(i, j)) / deter;
+		}
+	}
+	return inv_matr;
 }
 
 #endif
