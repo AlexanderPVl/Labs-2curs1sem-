@@ -40,6 +40,8 @@ void vector_test() {
 	cout << ((-1)*a).max_norme() << endl;
 	cout << unlim_vector<int>({ 1, 1 }).p_norme(2);
 	cout << endl;
+
+	(e1 * e2).print();
 }
 
 void matrix_test() {
@@ -82,14 +84,17 @@ void matrix_test() {
 	unlim_symmetric_matrix<int> a(unlim_matrix<int>({ { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 1 } }));
 	unlim_symmetric_matrix<int> b(a);
 	a.print();
-	unlim_matrix<int> i_matr1({ { 1, 1, 1 }, { 0, 2, 2 }, { 0, 0, 3 } });
-	unlim_matrix<int> i_matr2({ { 1, 0, 0 }, { 2, 2, 0 }, { 3, 3, 3 } });
+	unlim_matrix<int> i_matr1({ {1, 1, 1 }, { 0, 2, 2 }, { 0, 0, 3 } });
+	unlim_matrix<int> i_matr2({ { 1, 2, 2 }, { 2, 2, 0 }, { 3, 3, 3 } });
 	unlim_upptriang_matrix<int> uptr1(i_matr1);
 	unlim_lowtriang_matrix<int> lotr1(i_matr2);
 	uptr1.print();
 	lotr1.print();
 	(lotr1 + uptr1).print();
 	matr5.transpose().print();
+	unlim_vector<int> i_vect1({ 1, 2, 3 });
+	(matr3 * i_vect1).print();
+	cout << "\nRank = " << matr_rank(i_matr2);
 }
 
 void convert_to_int() {
