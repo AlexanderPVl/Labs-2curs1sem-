@@ -462,7 +462,7 @@ unlim_matrix<T> operator * (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
 	if (!int_convertable<U>()) throw except_vrong_type<U>();
 	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
-	if (!matr1.is_compatible_with(matr2) || matr1.get_col_cnt() != matr2.get_row_cnt())return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2) || matr1.get_col_cnt() != matr2.get_row_cnt()) return empty_unlim_matrix.convert_to<T>();
 	int i, j, k;
 	T sum;
 	int row1 = matr1.get_row_cnt();
@@ -482,6 +482,25 @@ unlim_matrix<T> operator * (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
 	return matr;
 }
 
+template<typename T, typename U>
+unlim_vector<T> operator * (unlim_matrix<T> &matr, unlim_vector<U> &vect) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (!matr.is_correct() || vect.is_empty() || matr.get_col_cnt() != vect.get_dimention()) return empty_unlim_vector.convert_to<T>();
+	int row = matr.get_row_cnt();
+	int col = matr.get_col_cnt();
+	T sum;
+	unlim_vector<T> new_vect(row);
+	for(int i = 0; i < row; ++i) {
+		sum = 0;
+		for (int j = 0; j < col; ++j) {
+			sum += (T)matr.matrix_p[i][j] * vect.vector_p[j];
+		}
+		new_vect.vector_p[i] = sum;
+	}
+	return new_vect;
+}
+
 // NON_MEMBER FUNCTIONS =======================================================================
 
 template<typename T>
@@ -496,7 +515,7 @@ T determinant(unlim_matrix<T> &matr) {
 		col = matr.get_col_cnt();
 		for (i = 0; i < col; ++i, neg *= -1){
 			sum += neg * matr.matrix_p[0][i] * determinant<T>(matr.algebr_compl(0, i));
-		}
+		} 
 	}
 	return sum;
 }
@@ -515,6 +534,34 @@ unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
 		}
 	}
 	return inv_matr;
+}
+
+template<typename T>
+int matr_rank(unlim_matrix<T> &matr) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr.is_empty() || !matr.is_correct()) throw except_empty_container();
+	int row = matr.get_row_cnt();
+	int col = matr.get_col_cnt();
+	int rank = (row < col) ? row : col;
+	vector<char> used_lines(row);
+	unlim_matrix<double> nmatr(matr.convert_to<double>());
+	for (int j = 0; j < col; ++j) {
+		int i;
+		for (i = 0; i < row/* && (used_lines[i] || nmatr.matrix_p[i][j] <= _eps)*/; ++i){
+			if (!used_lines[i] && nmatr.matrix_p[i][j] > _eps) break;
+		}
+
+		if (i == row) rank--;
+		else {
+			used_lines[i] = 1;
+			for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[i][k] /= nmatr.matrix_p[i][j]; }
+			for (int r = 0; r < row; ++r) {
+				if (r != i && abs(nmatr.matrix_p[r][j]) > _eps)
+					for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[r][k] -= nmatr.matrix_p[r][j] * nmatr.matrix_p[i][k]; }
+			}
+		}
+	}
+	return rank;
 }
 
 #endif
