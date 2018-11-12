@@ -155,11 +155,15 @@ double unlim_vector<T>::angle_to(unlim_vector<U> &vect) const {
 
 template<typename T>
 void unlim_vector<T>::print() const {
-	int i = 0, size = vector_s.size();
-	if (!size) {
+	if (empty) {
 		cout << "{ }";
 		return;
 	}
+	int i = 0, size = vector_s.size();
+	/*if (!size) {
+		cout << "{ }";
+		return;
+	}*/
 	cout << "{ ";
 	for (unsigned int i = 0; i < vector_s.size() - 1; ++i){
 		cout << vector_s[i] << ", ";
@@ -286,6 +290,26 @@ unlim_vector<D> operator * (D mul, const unlim_vector<int> &vect1) {
 	int dim = vect1.get_dimention();
 	for (int i = 0; i < dim; ++i){ vect.vector_p[i] = (D)vect.vector_p[i] * mul; }
 	return vect;
+}
+
+/*template<typename T>
+unlim_vector<T> operator * (unlim_vector<T> v1, unlim_vector<T> v2) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (v1.is_empty() || v2.is_empty || v1.is_compatible_with(v2)) return empty_unlim_vector.convert_to<D>();
+	if (v1.get_dimention() != 3) return empty_unlim_vector.convert_to<T>();
+	unlim_vector<T> v(3);
+	return v;
+}*/
+
+unlim_vector<int> operator * (unlim_vector<int> &v1, unlim_vector<int> &v2) {
+	if (!int_convertable<int>()) throw except_vrong_type<int>();
+	if (v1.is_empty() || v2.is_empty() || !v1.is_compatible_with(v2)) return empty_unlim_vector.convert_to<int>();
+	if (v1.get_dimention() != 3) return empty_unlim_vector.convert_to<int>();
+	unlim_vector<int> v(3);
+	v.vector_p[0] = v1.vector_p[1] * v2.vector_p[2] - v1.vector_p[2] * v2.vector_p[1];
+	v.vector_p[1] = v1.vector_p[0] * v2.vector_p[2] - v1.vector_p[2] * v2.vector_p[0];
+	v.vector_p[2] = v1.vector_p[0] * v2.vector_p[1] - v1.vector_p[1] * v2.vector_p[0];
+	return v;
 }
 
 #endif
