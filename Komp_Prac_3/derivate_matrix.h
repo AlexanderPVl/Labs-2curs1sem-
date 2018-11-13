@@ -17,6 +17,20 @@ private:
 };
 
 template<typename T>
+class unlim_diag_matrix : public unlim_matrix<T> {
+public:
+	unlim_diag_matrix();
+	unlim_diag_matrix(int dim);
+	unlim_diag_matrix(unlim_matrix<T> &matr);
+	~unlim_diag_matrix() = default;
+	int get_dimention() const;
+private:
+	int dimention;
+	bool correct; // if empty => not correct
+	bool empty;
+};
+
+template<typename T>
 class unlim_symmetric_matrix : public unlim_matrix<T> {
 public:
 	unlim_symmetric_matrix();
@@ -71,7 +85,8 @@ unlim_ident_matrix<T>::unlim_ident_matrix(int dim) : unlim_matrix<T>(dim, dim) {
 		empty = true;
 		correct = false;
 		dimention = 0;
-	} else {
+	}
+	else {
 		empty = false;
 		correct = true;
 		dimention = dim;
@@ -82,6 +97,57 @@ unlim_ident_matrix<T>::unlim_ident_matrix(int dim) : unlim_matrix<T>(dim, dim) {
 
 template<typename T>
 int unlim_ident_matrix<T>::get_dimention() const { return dimention; }
+
+// DIAGONAL MATRIX
+
+template<typename T>
+unlim_diag_matrix<T>::unlim_diag_matrix() : unlim_matrix<T>() {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	empty = true;
+	correct = false;
+	dimention = 0;
+	row_cnt = col_cnt = dimention;
+};
+
+template<typename T>
+unlim_diag_matrix<T>::unlim_diag_matrix(int dim) : unlim_matrix<T>(dim, dim) {
+	int i;
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (dim <= 0) {
+		empty = true;
+		correct = false;
+		dimention = 0;
+	}
+	else {
+		empty = false;
+		correct = true;
+		dimention = dim;
+	}
+	row_cnt = col_cnt = dimention;
+}
+
+template<typename T>
+unlim_diag_matrix<T>::unlim_diag_matrix(unlim_matrix<T> &matr) : unlim_matrix<T>(matr.get_row_cnt(), matr.get_row_cnt()) {
+	int i;
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (!matr.is_square()) throw except_vrong_type<T>();
+	int dim = matr.get_row_cnt();
+	if (dim <= 0) {
+		empty = true;
+		correct = false;
+		dimention = 0;
+	}
+	else {
+		empty = false;
+		correct = true;
+		dimention = dim;
+		for (i = 0; i < dim; ++i) { matrix_s[i][i] = matr.matrix_p[i][i]; }
+	}
+	row_cnt = col_cnt = dimention;
+}
+
+template<typename T>
+int unlim_diag_matrix<T>::get_dimention() const { return dimention; }
 
 // OPERATORS =============================================================================
 
@@ -170,7 +236,8 @@ unlim_symmetric_matrix<T>::unlim_symmetric_matrix(unlim_symmetric_matrix<T> &mat
 		empty = false;
 		correct = true;
 		dimention = matr.dimention;
-	} else {
+	}
+	else {
 		correct = false;
 		empty = true;
 		dimention = 0;
@@ -186,7 +253,8 @@ unlim_symmetric_matrix<T>::unlim_symmetric_matrix(unlim_matrix<T> &matr) {
 		empty = true;
 		correct = false;
 		dimention = 0;
-	} else {
+	}
+	else {
 		empty = matr.is_empty();
 		correct = matr.is_correct();
 		dimention = matr.get_row_cnt();
