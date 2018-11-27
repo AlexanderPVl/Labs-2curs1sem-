@@ -104,8 +104,7 @@ unlim_matrix<T>::unlim_matrix(vector<vector<T> > matr) : matrix_s(matr), matrix_
 	if (correct == false){
 		row_cnt = 0;
 		col_cnt = 0;
-	}
-	else {
+	} else {
 		row_cnt = matr.size();
 		col_cnt = matr[0].size();
 	}
@@ -492,7 +491,7 @@ unlim_vector<T> operator * (unlim_matrix<T> &matr, unlim_vector<U> &vect) {
 	int col = matr.get_col_cnt();
 	T sum;
 	unlim_vector<T> new_vect(row);
-	for (int i = 0; i < row; ++i) {
+	for(int i = 0; i < row; ++i) {
 		sum = 0;
 		for (int j = 0; j < col; ++j) {
 			sum += (T)matr.matrix_p[i][j] * vect.vector_p[j];
@@ -509,15 +508,15 @@ T determinant(unlim_matrix<T> &matr) {
 	T sum = 0;
 	int i, col, neg = 1;
 	if (!int_convertable<T>()) throw except_vrong_type<T>();
-	if (!matr.is_square()) throw except_non_compatible("Matrix is not square");
+	if (!matr.is_square())		throw except_non_compatible("Matrix is not square");
+
 	if (matr.get_row_cnt() == 2) {
 		return (matr.matrix_p[0][0] * matr.matrix_p[1][1] - matr.matrix_p[0][1] * matr.matrix_p[1][0]);
-	}
-	else {
+	} else {
 		col = matr.get_col_cnt();
 		for (i = 0; i < col; ++i, neg *= -1){
 			sum += neg * matr.matrix_p[0][i] * determinant<T>(matr.algebr_compl(0, i));
-		}
+		} 
 	}
 	return sum;
 }
@@ -532,7 +531,7 @@ unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
 	double deter = determinant<T>(matr);
 	for (i = 0; i < row; ++i){
 		for (j = 0; j < col; ++j){
-			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0) ? 1 : -1) * determinant<T>(matr.algebr_compl(i, j)) / deter;
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0)?1:-1) * determinant<T>(matr.algebr_compl(i, j)) / deter;
 		}
 	}
 	return inv_matr;
@@ -547,21 +546,25 @@ int matr_rank(unlim_matrix<T> &matr) {
 	int rank = (row < col) ? row : col;
 	vector<char> used_lines(row);
 	unlim_matrix<double> nmatr(matr.convert_to<double>());
+	int i;
 	for (int j = 0; j < col; ++j) {
-		int i;
+		//int i;
 		for (i = 0; i < row; ++i){
-			if (used_lines[i] == 0 && abs(nmatr.matrix_p[i][j]) > _eps) break;
+			if (!used_lines[i] && abs(nmatr.matrix_p[i][j]) > _eps) break;
 		}
-
 		if (i == row) rank--;
 		else {
 			used_lines[i] = 1;
+			//cout << "delim stroku " << i + 1 << " na " << nmatr.matrix_p[i][j] << endl;
 			for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[i][k] /= nmatr.matrix_p[i][j]; }
 			for (int r = 0; r < row; ++r) {
-				if (r != i && abs(nmatr.matrix_p[r][j]) > _eps)
-				for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[r][k] -= nmatr.matrix_p[r][j] * nmatr.matrix_p[i][k]; }
+				if (r != i && abs(nmatr.matrix_p[r][j]) > _eps) {
+					//cout << "Vichitaem iz stroki " << r + 1 << " Stroku " << i + 1 << ", umnozjennuyu na " << nmatr.matrix_p[r][j] << endl;
+					for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[r][k] -= nmatr.matrix_p[r][j] * nmatr.matrix_p[i][k]; }
+				}
 			}
 		}
+		nmatr.print();
 	}
 	return rank;
 }
