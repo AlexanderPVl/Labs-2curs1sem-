@@ -18,6 +18,11 @@ public:
 
 	typedef vector<T> t;
 
+	void print_to_file(const char* name, const char* type);
+	void read_from_file(const char* name, const char* type);
+
+	void reset(int dim);
+
 	bool is_empty() const;
 	template<typename U>
 	int is_compatible_with(const unlim_vector<U> &vect) const; // 0 - not compatible, 1 - full compatibility, 2 - not empty, equal size, but different types
@@ -64,6 +69,20 @@ unlim_vector<T>::unlim_vector(int dim_) : vector_p(vector_s) {
 		dimention = dim_;
 		empty = false;
 	} else {
+		dimention = 0;
+		empty = true;
+	}
+}
+
+template<typename T>
+void unlim_vector<T>::reset(int dim_) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (dim_ > 0) {
+		vector_s.assign(dim_, (T)0);
+		dimention = dim_;
+		empty = false;
+	}
+	else {
 		dimention = 0;
 		empty = true;
 	}
@@ -310,6 +329,43 @@ unlim_vector<int> operator * (unlim_vector<int> &v1, unlim_vector<int> &v2) {
 	v.vector_p[1] = v1.vector_p[0] * v2.vector_p[2] - v1.vector_p[2] * v2.vector_p[0];
 	v.vector_p[2] = v1.vector_p[0] * v2.vector_p[1] - v1.vector_p[1] * v2.vector_p[0];
 	return v;
+}
+
+template<typename T>
+void unlim_vector<T>::print_to_file(const char* name, const char* type) {
+	string str = string("vectors\\").append(name);
+	FILE* f = fopen(str.append(".").append(type).c_str(), "w");
+	fprintf(f, "%d", dimention);
+	fprintf(f, "%c", ' ');
+
+	for (int i = 0; i < dimention; ++i){
+		fprintf(f, "%lf", (double)vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+
+	for (int i = 0; i < dimention; ++i) {
+		fprintf(f, "%lf", (double)vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void unlim_vector<T>::read_from_file(const char* name, const char* type) {
+	int row = 0;
+	int col = 0;
+	double d = 0;
+	string str = string("vectors\\").append(name);
+	FILE* f = fopen(str.append(".").append(type).c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &dimention);
+	reset(dimention);
+	for (int i = 0; i < dimention; ++i){
+		fscanf(f, "%lf", &d);
+		vector_p[i] = (T)d;
+	}
+	fclose(f);
 }
 
 #endif
