@@ -2,6 +2,7 @@
 #define ALGORITHMS_H
 
 #include <math.h>
+#include <Windows.h>
 
 #define TYPELIST_3(T1, T2, T3) TypeList< T1, TypeList<T2, T3> >
 #define PI 3.1415926535
