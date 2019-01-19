@@ -8,8 +8,8 @@ typedef unlim_vector<float>::t::iterator f_vect_iterator;
 typedef unlim_vector<int>::t::iterator i_vect_iterator;
 
 void vector_test() {
-	std::cout << "===============Vector test===============" << std::endl;
-	unlim_vector<int> a;
+	std::cout << "===============Vector test===============" << std::endl << endl;;
+	/*unlim_vector<int> a;
 	unlim_vector<int> e1({ 1, 0, 0 });
 	unlim_vector<int> e2({ 0, 1, 0 });
 	unlim_vector<int> e3({ 0, 0, 1 });
@@ -41,15 +41,28 @@ void vector_test() {
 	cout << unlim_vector<int>({ 1, 1 }).p_norme(2);
 	cout << endl;
 
-	(e1 * e2).print();
+	(e1 * e2).print();*/
+
+	unlim_vector<double> c({ 1.32, 2.23, 0.1, 0.2, 0.33334 });
+	unlim_vector<double> v1({ 1, 2, 3, 4, 5, 6, 7, 8 });
+	unlim_vector<double> v2({ 1, 4, 5, 6, 7, 8 });
+	c.print_to_file("c", "txt");
+	c.print_to_file("c", "bin");
+	v1.read_from_file("c", "txt");
+	v2.read_from_file("c", "bin");
+	c.print();	cout << endl;
+	v1.print();	cout << endl;
+	v2.print();
+
+	cout << endl;
 }
 
 void matrix_test() {
-	std::cout << endl << "===============Matrix test===============" << std::endl;
-	unlim_matrix<int> matr1(3, 3);
+	std::cout << endl << "===============Matrix test===============" << std::endl << endl;;
+	/*unlim_matrix<int> matr1(3, 3);
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 },
-	                            { 2, 3.3f, 4 },
-							    { 3, 4, 5.5f } });
+	{ 2, 3.3f, 4 },
+	{ 3, 4, 5.5f } });
 	cout << ">> Matrix 1 (int):" << endl; matr1.print(' ', 3);
 	cout << ">> Matrix 2 (float):" << endl; matr2.print(' ', 3);
 	cout << ">> Hadamard product (matr1 * matr2):" << endl; matr2.hadamard_product(matr1).print(' ', 7);
@@ -83,11 +96,11 @@ void matrix_test() {
 	cout << endl;
 	unlim_symmetric_matrix<int> a(unlim_matrix<int>({ { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 1 } }));
 	unlim_symmetric_matrix<int> b(a);
-	a.print();
-	unlim_matrix<int> i_matr1({ {1, 1, 1 }, { 0, 2, 2 }, { 0, 0, 3 } });
+	a.print();*/
+	unlim_matrix<int> i_matr1({ { 1, 1, 1 }, { 0, 2, 2 }, { 0, 0, 3 } });
 	unlim_matrix<int> i_matr2({ { 1, 2, 2 }, { 2, 4, 4 }, { 1, 2, 3 } });
 	unlim_matrix<int> i_matr3(3, 3);
-	unlim_upptriang_matrix<int> uptr1(i_matr1);
+	/*unlim_upptriang_matrix<int> uptr1(i_matr1);
 	unlim_lowtriang_matrix<int> lotr1(i_matr2);
 	uptr1.print();
 	lotr1.print();
@@ -98,6 +111,17 @@ void matrix_test() {
 	cout << endl;
 	cout << "\nRank = " << matr_rank(i_matr2);
 	//determinant<int>(matr3);
+	inverse<int>(matr5).print();*/
+
+	unlim_matrix<float> matr2({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f } });
+
+	i_matr1.print_to_file("int_matrix_1", "txt");
+	i_matr2.read_from_file("int_matrix_1", "txt");
+	i_matr2.print();
+	cout << endl;
+	i_matr1.print();
+
+	cout << endl << "===============End of test===============" << endl;
 }
 
 void convert_to_int() {
@@ -111,6 +135,9 @@ void convert_to_int() {
 
 int main() {
 	cout << "Program start." << endl << endl;
+
+	system("MD vectors");
+	system("MD matrices");
 
 	convert_to_int();
 	vector_test();
