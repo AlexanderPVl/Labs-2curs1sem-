@@ -14,12 +14,16 @@ public:
 	unlim_matrix(unlim_matrix<T> &matr);
 	~unlim_matrix() = default;
 
+	void print_to_file(const char* name, const char* type); // "bin" or "txt"
+	void read_from_file(const char* name, const char* type);
+
 	int get_row_cnt() const;
 	int get_col_cnt() const;
 	void set_row_cnt(int cnt);
 	void set_col_cnt(int cnt);
 	void set_correct(bool correct_);
 	void set_empty(bool empty_);
+	void reset(int row_, int col_);
 
 	bool is_correct() const;
 	bool is_empty() const;
@@ -73,6 +77,26 @@ unlim_matrix<T>::unlim_matrix() : matrix_s(), matrix_p(matrix_s) {
 
 template<typename T>
 unlim_matrix<T>::unlim_matrix(int row_, int col_) : matrix_p(matrix_s) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	int i;
+	row_cnt = row_;
+	col_cnt = col_;
+	if (row_ == 0 || col_ == 0){
+		empty = true;
+		correct = false;
+	}
+	else {
+		empty = false;
+		correct = true;
+		for (i = 0; i < row_; ++i){
+			matrix_s.push_back(vector<T>(col_, 0));
+		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::reset(int row_, int col_) {
+	matrix_s.clear();
 	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	int i;
 	row_cnt = row_;
@@ -531,7 +555,7 @@ unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
 	double deter = determinant<T>(matr);
 	for (i = 0; i < row; ++i){
 		for (j = 0; j < col; ++j){
-			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0)?1:-1) * determinant<T>(matr.algebr_compl(i, j)) / deter;
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0)?1:-1) * determinant<T>(matr.algebr_compl(j, i)) / deter;
 		}
 	}
 	return inv_matr;
@@ -567,6 +591,45 @@ int matr_rank(unlim_matrix<T> &matr) {
 		nmatr.print();
 	}
 	return rank;
+}
+
+template<typename T>
+void unlim_matrix<T>::print_to_file(const char* name, const char* type) {
+	string str = string("matrices\\").append(name);
+	FILE* f = fopen(str.append(".").append(type).c_str(), "w");
+	fprintf(f, "%d", row_cnt);
+	fprintf(f, "%c", ' ');
+	fprintf(f, "%d", col_cnt);
+	fprintf(f, "%c", ' ');
+
+	for (int i = 0; i < row_cnt; ++i) {
+		for (int j = 0; j < col_cnt; ++j) {
+			fprintf(f, "%lf", (double)matrix_p[i][j]);
+			fprintf(f, "%c", ' ');
+		}
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void unlim_matrix<T>::read_from_file(const char* name, const char* type) {
+	int row = 0;
+	int col = 0;
+	double d = 0;
+	string str = string("matrices\\").append(name);
+	FILE* f = fopen(str.append(".").append(type).c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &row);
+	fscanf(f, "%d", &col);
+	reset(row, col);
+	for (int i = 0; i < row; ++i){
+		for (int j = 0; j < col; ++j){
+			fscanf(f, "%lf", &d);
+			matrix_p[i][j] = (T)d;
+		}
+	}
+	fclose(f);
 }
 
 #endif
