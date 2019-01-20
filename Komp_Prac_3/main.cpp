@@ -46,19 +46,30 @@ void vector_test() {
 	unlim_vector<double> c({ 1.32, 2.23, 0.1, 0.2, 0.33334 });
 	unlim_vector<double> v1({ 1, 2, 3, 4, 5, 6, 7, 8 });
 	unlim_vector<double> v2({ 1, 4, 5, 6, 7, 8 });
+	unlim_vector<double> v3({ 9, 8, 7, 6, 5 });
 	c.print_to_file("c", "txt");
 	c.print_to_file("c", "bin");
 	v1.read_from_file("c", "txt");
 	v2.read_from_file("c", "bin");
-	c.print();	cout << endl;
-	v1.print();	cout << endl;
-	v2.print();
+	c.print("c:	");	cout << endl;
+	v1.print("v1:	");	cout << endl;
+	v2.print("v2:	"); cout << endl;
+
+	v3 << "buf_vector";
+	v1 >> "buf_vector";
+
+	v3.print("v3:	"); cout << endl;
+	v1.print("v1:	");
 
 	cout << endl;
 }
 
 void matrix_test() {
-	std::cout << endl << "===============Matrix test===============" << std::endl << endl;;
+	std::cout << endl << "===============Matrix test===============" << std::endl << endl;
+
+	FILE* f = fopen("matrices//test_file.txt", "w");
+	if (!f) throw except_empty_container("empty file");
+
 	/*unlim_matrix<int> matr1(3, 3);
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 },
 	{ 2, 3.3f, 4 },
@@ -97,9 +108,11 @@ void matrix_test() {
 	unlim_symmetric_matrix<int> a(unlim_matrix<int>({ { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 1 } }));
 	unlim_symmetric_matrix<int> b(a);
 	a.print();*/
+
 	unlim_matrix<int> i_matr1({ { 1, 1, 1 }, { 0, 2, 2 }, { 0, 0, 3 } });
 	unlim_matrix<int> i_matr2({ { 1, 2, 2 }, { 2, 4, 4 }, { 1, 2, 3 } });
-	unlim_matrix<int> i_matr3(3, 3);
+	unlim_matrix<int> i_matr3({ { 1, 2, 5 }, { 5, 4, 4 }, { 5, 5, 5 } });
+
 	/*unlim_upptriang_matrix<int> uptr1(i_matr1);
 	unlim_lowtriang_matrix<int> lotr1(i_matr2);
 	uptr1.print();
@@ -120,6 +133,13 @@ void matrix_test() {
 	i_matr2.print();
 	cout << endl;
 	i_matr1.print();
+
+	i_matr3 << "new_matrix";
+	i_matr2 >> "new_matrix";
+
+	i_matr2.print();
+
+	fclose(f);
 
 	cout << endl << "===============End of test===============" << endl;
 }
