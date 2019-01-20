@@ -632,4 +632,46 @@ void unlim_matrix<T>::read_from_file(const char* name, const char* type) {
 	fclose(f);
 }
 
+template<typename T>
+void operator << (unlim_matrix<T> &matr, const char* name) {
+	int row_cnt = matr.get_row_cnt();
+	int col_cnt = matr.get_col_cnt();
+	string str = string("matrices\\").append(name).append(".bin");
+	FILE* f = fopen(str.c_str(), "w");
+	if (!f) throw except_empty_container("empty file");
+	fprintf(f, "%d", row_cnt);
+	fprintf(f, "%c", ' ');
+	fprintf(f, "%d", col_cnt);
+	fprintf(f, "%c", ' ');
+
+	for (int i = 0; i < row_cnt; ++i) {
+		for (int j = 0; j < col_cnt; ++j) {
+			fprintf(f, "%lf", (double)matr.matrix_p[i][j]);
+			fprintf(f, "%c", ' ');
+		}
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void operator >> (unlim_matrix<T> &matr, const char* name) {
+	int row = 0;
+	int col = 0;
+	double d = 0;
+	string str = string("matrices\\").append(name).append(".bin");
+	FILE* f = fopen(str.c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &row);
+	fscanf(f, "%d", &col);
+	matr.reset(row, col);
+	for (int i = 0; i < row; ++i){
+		for (int j = 0; j < col; ++j){
+			fscanf(f, "%lf", &d);
+			matr.matrix_p[i][j] = (T)d;
+		}
+	}
+	fclose(f);
+}
+
 #endif
