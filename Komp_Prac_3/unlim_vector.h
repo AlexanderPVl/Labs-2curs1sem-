@@ -33,7 +33,7 @@ public:
 	double scalar_product(unlim_vector<U> &vect) const;
 	template<typename U>
 	double angle_to(unlim_vector<U> &vect) const;
-	void print() const;
+	void print(const char *str = "") const;
 	int set(const vector<T> &vect);
 	template<typename U>
 	unlim_vector<U> convert_to(_type<U>&) const;
@@ -173,7 +173,7 @@ double unlim_vector<T>::angle_to(unlim_vector<U> &vect) const {
 }
 
 template<typename T>
-void unlim_vector<T>::print() const {
+void unlim_vector<T>::print(const char *str) const {
 	if (empty) {
 		cout << "{ }";
 		return;
@@ -183,7 +183,7 @@ void unlim_vector<T>::print() const {
 		cout << "{ }";
 		return;
 	}*/
-	cout << "{ ";
+	cout << str << "{ ";
 	for (unsigned int i = 0; i < vector_s.size() - 1; ++i){
 		cout << vector_s[i] << ", ";
 	}
@@ -364,6 +364,45 @@ void unlim_vector<T>::read_from_file(const char* name, const char* type) {
 	for (int i = 0; i < dimention; ++i){
 		fscanf(f, "%lf", &d);
 		vector_p[i] = (T)d;
+	}
+	fclose(f);
+}
+
+template<typename T>
+void operator << (unlim_vector<T> &vec, const char* name) {
+	int dimention = vec.get_dimention();
+	string str = string("vectors\\").append(name).append(".bin");
+	FILE* f = fopen(str.append(".").c_str(), "w");
+	fprintf(f, "%d", dimention);
+	fprintf(f, "%c", ' ');
+
+	for (int i = 0; i < dimention; ++i){
+		fprintf(f, "%lf", (double)vec.vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+
+	for (int i = 0; i < dimention; ++i) {
+		fprintf(f, "%lf", (double)vec.vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void operator >> (unlim_vector<T> &vec, const char* name) {
+	int dimention = vec.get_dimention();
+	int row = 0;
+	int col = 0;
+	double d = 0;
+	string str = string("vectors\\").append(name).append(".bin");
+	FILE* f = fopen(str.append(".").c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &dimention);
+	vec.reset(dimention);
+	for (int i = 0; i < dimention; ++i){
+		fscanf(f, "%lf", &d);
+		vec.vector_p[i] = (T)d;
 	}
 	fclose(f);
 }
