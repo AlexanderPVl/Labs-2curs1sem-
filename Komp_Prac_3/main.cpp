@@ -62,9 +62,9 @@ void vector_test() {
 	v3.print("v3:	"); cout << endl;
 	v1.print("v1:	"); cout << endl;
 
-	FILE* f = fopen("test_file.bin", "w");
+	FILE* f = fopen("vectors//test_file.bin", "w");
 	v3 << f;
-	f = fopen("test_file.bin", "r");
+	f = fopen("vectors//test_file.bin", "r");
 	v2 >> f;
 	v2.print("v2:	"); cout << endl;
 
@@ -137,14 +137,19 @@ void matrix_test() {
 
 	i_matr1.print_to_file("int_matrix_1", "txt");
 	i_matr2.read_from_file("int_matrix_1", "txt");
-	i_matr2.print();
+	cout << "i_matr2:" << endl; i_matr2.print();
 	cout << endl;
-	i_matr1.print();
+	cout << "i_matr1:" << endl; i_matr1.print();
 
 	i_matr3 << "new_matrix";
 	i_matr2 >> "new_matrix";
 
-	i_matr2.print();
+	cout << "i_matr2:" << endl; i_matr2.print();
+
+	i_matr1 << f;
+	f = fopen("matrices//test_file.txt", "r");
+	i_matr2 >> f;
+	cout << "i_matr2:" << endl; i_matr2.print();
 
 	fclose(f);
 
