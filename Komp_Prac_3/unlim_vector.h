@@ -68,7 +68,8 @@ unlim_vector<T>::unlim_vector(int dim_) : vector_p(vector_s) {
 		vector_s.assign(dim_, (T)0);
 		dimention = dim_;
 		empty = false;
-	} else {
+	}
+	else {
 		dimention = 0;
 		empty = true;
 	}
@@ -132,7 +133,7 @@ double unlim_vector<T>::p_norme(int p) const {
 	if (empty || dimention == 0)
 		throw except_empty_container("Incorrect data or vector is empty", empty, dimention);
 	for (auto it : vector_p) { d += (T)pow(it, p); }
-	return pow((double)d, 1/(double)p);
+	return pow((double)d, 1 / (double)p);
 }
 
 template<typename T>
@@ -180,8 +181,8 @@ void unlim_vector<T>::print(const char *str) const {
 	}
 	int i = 0, size = vector_s.size();
 	/*if (!size) {
-		cout << "{ }";
-		return;
+	cout << "{ }";
+	return;
 	}*/
 	cout << str << "{ ";
 	for (unsigned int i = 0; i < vector_s.size() - 1; ++i){
@@ -197,7 +198,8 @@ int unlim_vector<T>::set(const vector<T> &vect) {
 		dimention = 0;
 		empty = true;
 		return 0;
-	} else {
+	}
+	else {
 		vector_s.empty();
 		dimention = vect.size();
 		vector_s.insert(vector_s.begin(), vect.begin(), vect.end());
@@ -313,11 +315,11 @@ unlim_vector<D> operator * (D mul, const unlim_vector<int> &vect1) {
 
 /*template<typename T>
 unlim_vector<T> operator * (unlim_vector<T> v1, unlim_vector<T> v2) {
-	if (!int_convertable<T>()) throw except_vrong_type<T>();
-	if (v1.is_empty() || v2.is_empty || v1.is_compatible_with(v2)) return empty_unlim_vector.convert_to<D>();
-	if (v1.get_dimention() != 3) return empty_unlim_vector.convert_to<T>();
-	unlim_vector<T> v(3);
-	return v;
+if (!int_convertable<T>()) throw except_vrong_type<T>();
+if (v1.is_empty() || v2.is_empty || v1.is_compatible_with(v2)) return empty_unlim_vector.convert_to<D>();
+if (v1.get_dimention() != 3) return empty_unlim_vector.convert_to<T>();
+unlim_vector<T> v(3);
+return v;
 }*/
 
 unlim_vector<int> operator * (unlim_vector<int> &v1, unlim_vector<int> &v2) {
@@ -397,6 +399,40 @@ void operator >> (unlim_vector<T> &vec, const char* name) {
 	double d = 0;
 	string str = string("vectors\\").append(name).append(".bin");
 	FILE* f = fopen(str.append(".").c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &dimention);
+	vec.reset(dimention);
+	for (int i = 0; i < dimention; ++i){
+		fscanf(f, "%lf", &d);
+		vec.vector_p[i] = (T)d;
+	}
+	fclose(f);
+}
+
+template<typename T>
+void operator << (unlim_vector<T> &vec, FILE* f) {
+	int dimention = vec.get_dimention();
+	fprintf(f, "%d", dimention);
+	fprintf(f, "%c", ' ');
+	for (int i = 0; i < dimention; ++i){
+		fprintf(f, "%lf", (double)vec.vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+
+	for (int i = 0; i < dimention; ++i) {
+		fprintf(f, "%lf", (double)vec.vector_p[i]);
+		fprintf(f, "%c", ' ');
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void operator >> (unlim_vector<T> &vec, FILE* f) {
+	int dimention = vec.get_dimention();
+	int row = 0;
+	int col = 0;
+	double d = 0;
 	if (!f) throw except_empty_container("empty file");
 	fscanf(f, "%d", &dimention);
 	vec.reset(dimention);
