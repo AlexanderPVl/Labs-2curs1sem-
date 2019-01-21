@@ -8,7 +8,7 @@ typedef unlim_vector<float>::t::iterator f_vect_iterator;
 typedef unlim_vector<int>::t::iterator i_vect_iterator;
 
 void vector_test() {
-	std::cout << "===============Vector test===============" << std::endl << endl;;
+	std::cout << "===============Vector test===============" << std::endl << endl;
 	/*unlim_vector<int> a;
 	unlim_vector<int> e1({ 1, 0, 0 });
 	unlim_vector<int> e2({ 0, 1, 0 });
@@ -47,6 +47,7 @@ void vector_test() {
 	unlim_vector<double> v1({ 1, 2, 3, 4, 5, 6, 7, 8 });
 	unlim_vector<double> v2({ 1, 4, 5, 6, 7, 8 });
 	unlim_vector<double> v3({ 9, 8, 7, 6, 5 });
+
 	c.print_to_file("c", "txt");
 	c.print_to_file("c", "bin");
 	v1.read_from_file("c", "txt");
@@ -59,7 +60,13 @@ void vector_test() {
 	v1 >> "buf_vector";
 
 	v3.print("v3:	"); cout << endl;
-	v1.print("v1:	");
+	v1.print("v1:	"); cout << endl;
+
+	FILE* f = fopen("test_file.bin", "w");
+	v3 << f;
+	f = fopen("test_file.bin", "r");
+	v2 >> f;
+	v2.print("v2:	"); cout << endl;
 
 	cout << endl;
 }
