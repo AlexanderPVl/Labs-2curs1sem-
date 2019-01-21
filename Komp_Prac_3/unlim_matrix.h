@@ -128,7 +128,8 @@ unlim_matrix<T>::unlim_matrix(vector<vector<T> > matr) : matrix_s(matr), matrix_
 	if (correct == false){
 		row_cnt = 0;
 		col_cnt = 0;
-	} else {
+	}
+	else {
 		row_cnt = matr.size();
 		col_cnt = matr[0].size();
 	}
@@ -515,7 +516,7 @@ unlim_vector<T> operator * (unlim_matrix<T> &matr, unlim_vector<U> &vect) {
 	int col = matr.get_col_cnt();
 	T sum;
 	unlim_vector<T> new_vect(row);
-	for(int i = 0; i < row; ++i) {
+	for (int i = 0; i < row; ++i) {
 		sum = 0;
 		for (int j = 0; j < col; ++j) {
 			sum += (T)matr.matrix_p[i][j] * vect.vector_p[j];
@@ -536,11 +537,12 @@ T determinant(unlim_matrix<T> &matr) {
 
 	if (matr.get_row_cnt() == 2) {
 		return (matr.matrix_p[0][0] * matr.matrix_p[1][1] - matr.matrix_p[0][1] * matr.matrix_p[1][0]);
-	} else {
+	}
+	else {
 		col = matr.get_col_cnt();
 		for (i = 0; i < col; ++i, neg *= -1){
 			sum += neg * matr.matrix_p[0][i] * determinant<T>(matr.algebr_compl(0, i));
-		} 
+		}
 	}
 	return sum;
 }
@@ -555,7 +557,7 @@ unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
 	double deter = determinant<T>(matr);
 	for (i = 0; i < row; ++i){
 		for (j = 0; j < col; ++j){
-			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0)?1:-1) * determinant<T>(matr.algebr_compl(j, i)) / deter;
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0) ? 1 : -1) * determinant<T>(matr.algebr_compl(j, i)) / deter;
 		}
 	}
 	return inv_matr;
@@ -661,6 +663,44 @@ void operator >> (unlim_matrix<T> &matr, const char* name) {
 	double d = 0;
 	string str = string("matrices\\").append(name).append(".bin");
 	FILE* f = fopen(str.c_str(), "r");
+	if (!f) throw except_empty_container("empty file");
+	fscanf(f, "%d", &row);
+	fscanf(f, "%d", &col);
+	matr.reset(row, col);
+	for (int i = 0; i < row; ++i){
+		for (int j = 0; j < col; ++j){
+			fscanf(f, "%lf", &d);
+			matr.matrix_p[i][j] = (T)d;
+		}
+	}
+	fclose(f);
+}
+
+template<typename T>
+void operator << (unlim_matrix<T> &matr, FILE* f) {
+	int row_cnt = matr.get_row_cnt();
+	int col_cnt = matr.get_col_cnt();
+	if (!f) throw except_empty_container("empty file");
+	fprintf(f, "%d", row_cnt);
+	fprintf(f, "%c", ' ');
+	fprintf(f, "%d", col_cnt);
+	fprintf(f, "%c", ' ');
+
+	for (int i = 0; i < row_cnt; ++i) {
+		for (int j = 0; j < col_cnt; ++j) {
+			fprintf(f, "%lf", (double)matr.matrix_p[i][j]);
+			fprintf(f, "%c", ' ');
+		}
+	}
+	fprintf(f, "%s", ";\n");
+	fclose(f);
+}
+
+template<typename T>
+void operator >> (unlim_matrix<T> &matr, FILE* f) {
+	int row = 0;
+	int col = 0;
+	double d = 0;
 	if (!f) throw except_empty_container("empty file");
 	fscanf(f, "%d", &row);
 	fscanf(f, "%d", &col);
