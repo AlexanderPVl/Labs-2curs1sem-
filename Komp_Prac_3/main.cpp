@@ -62,10 +62,12 @@ void vector_test() {
 	v3.print("v3:	"); cout << endl;
 	v1.print("v1:	"); cout << endl;
 
-	FILE* f = fopen("vectors//test_file.bin", "w");
-	v3 << f;
-	f = fopen("vectors//test_file.bin", "r");
-	v2 >> f;
+	//FILE* f = fopen("vectors//test_file.bin", "w");
+	//ofstream ofs("vectors//test_file", ios::binary);
+	//ifstream ifs("vectors//test_file", ios::binary);
+
+	//v3 << ofs;
+	//v2 >> ifs;
 	v2.print("v2:	"); cout << endl;
 
 	cout << endl;
@@ -74,8 +76,8 @@ void vector_test() {
 void matrix_test() {
 	std::cout << endl << "===============Matrix test===============" << std::endl << endl;
 
-	FILE* f = fopen("matrices//test_file.txt", "w");
-	if (!f) throw except_empty_container("empty file");
+	//FILE* f = fopen("matrices//test_file.txt", "w");
+	//if (!f) throw except_empty_container("empty file");
 
 	/*unlim_matrix<int> matr1(3, 3);
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 },
@@ -132,11 +134,12 @@ void matrix_test() {
 	cout << "\nRank = " << matr_rank(i_matr2);
 	//determinant<int>(matr3);
 	inverse<int>(matr5).print();*/
-
+	
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f } });
 
-	i_matr1.print_to_file("int_matrix_1", "txt");
-	i_matr2.read_from_file("int_matrix_1", "txt");
+	i_matr1.print_to_file("int_matrix_19", "txt");
+	i_matr2.read_from_file("int_matrix_19", "txt");
+
 	cout << "i_matr2:" << endl; i_matr2.print();
 	cout << endl;
 	cout << "i_matr1:" << endl; i_matr1.print();
@@ -146,14 +149,16 @@ void matrix_test() {
 
 	cout << "i_matr2:" << endl; i_matr2.print();
 
-	i_matr1 << f;
-	f = fopen("matrices//test_file.txt", "r");
-	i_matr2 >> f;
+	ofstream ofs("matrices\\int_matrix_2", ios::binary);
+	ifstream ifs("matrices\\int_matrix_2", ios::binary);
+
+	i_matr1 << ofs;
+	i_matr2 >> ifs;
+
 	cout << "i_matr2:" << endl; i_matr2.print();
 
-	fclose(f);
-
 	cout << endl << "===============End of test===============" << endl;
+	
 }
 
 void convert_to_int() {
