@@ -335,112 +335,120 @@ unlim_vector<int> operator * (unlim_vector<int> &v1, unlim_vector<int> &v2) {
 
 template<typename T>
 void unlim_vector<T>::print_to_file(const char* name, const char* type) {
-	string str = string("vectors\\").append(name);
-	FILE* f = fopen(str.append(".").append(type).c_str(), "w");
-	fprintf(f, "%d", dimention);
-	fprintf(f, "%c", ' ');
+	if (string(type) == string("bin")){
+		string str = string("vectors\\").append(name);
+		ofstream f(name, ios::binary);
+		if (!f) throw except_empty_container("empty file");
 
-	for (int i = 0; i < dimention; ++i){
-		fprintf(f, "%lf", (double)vector_p[i]);
-		fprintf(f, "%c", ' ');
-	}
+		f.write((char*)&dimention, sizeof(int));
 
-	for (int i = 0; i < dimention; ++i) {
-		fprintf(f, "%lf", (double)vector_p[i]);
-		fprintf(f, "%c", ' ');
+		for (int i = 0; i < dimention; ++i) {
+			f.write((char*)&vector_p[i], sizeof(vector_p[i]));
+		}
+		f.close();
 	}
-	fprintf(f, "%s", ";\n");
-	fclose(f);
+	if (string(type) == string("txt")){
+		string str = string("vectors\\").append(name).append(".txt");
+
+		ofstream f(str, ios::out);
+		if (!f) throw except_empty_container("empty file");
+		f << dimention << ' ';
+
+		for (int i = 0; i < dimention; ++i){
+			f << vector_p[i] << ' ';
+		}
+		f.close();
+	}
 }
 
 template<typename T>
 void unlim_vector<T>::read_from_file(const char* name, const char* type) {
-	int row = 0;
-	int col = 0;
-	double d = 0;
-	string str = string("vectors\\").append(name);
-	FILE* f = fopen(str.append(".").append(type).c_str(), "r");
-	if (!f) throw except_empty_container("empty file");
-	fscanf(f, "%d", &dimention);
-	reset(dimention);
-	for (int i = 0; i < dimention; ++i){
-		fscanf(f, "%lf", &d);
-		vector_p[i] = (T)d;
+	if (string(type) == string("bin")){
+		int dim = 0;
+		string str = string("vectors\\").append(name);
+
+		ifstream f(name, ios::binary);
+		if (!f) throw except_empty_container("empty file");
+		f.read((char*)&dim, sizeof(int));
+
+		reset(dim);
+		for (int i = 0; i < dim; ++i){
+			f.read((char*)&vector_p[i], sizeof(vector_p[i]));
+		}
+		f.close();
 	}
-	fclose(f);
+	if (string(type) == string("txt")){
+		int dim = 0;
+		string str = string("vectors\\").append(name).append(".txt");
+
+		ifstream f(str, ios::in);
+		if (!f) throw except_empty_container("empty file");
+		f >> dim;
+
+		reset(dim);
+		for (int i = 0; i < dim; ++i){
+			f >> vector_p[i];
+		}
+		f.close();
+	}
 }
 
 template<typename T>
 void operator << (unlim_vector<T> &vec, const char* name) {
-	int dimention = vec.get_dimention();
-	string str = string("vectors\\").append(name).append(".bin");
-	FILE* f = fopen(str.append(".").c_str(), "w");
-	fprintf(f, "%d", dimention);
-	fprintf(f, "%c", ' ');
+	int dim = vec.get_dimention();
+	string str = string("matrices\\").append(name);
+	ofstream f(name, ios::binary);
+	if (!f) throw except_empty_container("empty file");
 
-	for (int i = 0; i < dimention; ++i){
-		fprintf(f, "%lf", (double)vec.vector_p[i]);
-		fprintf(f, "%c", ' ');
-	}
+	f.write((char*)&dim, sizeof(int));
 
-	for (int i = 0; i < dimention; ++i) {
-		fprintf(f, "%lf", (double)vec.vector_p[i]);
-		fprintf(f, "%c", ' ');
+	for (int i = 0; i < dim; ++i) {
+		f.write((char*)&(vec.vector_p[i]), sizeof(vec.vector_p[i]));
 	}
-	fprintf(f, "%s", ";\n");
-	fclose(f);
+	f.close();
 }
 
 template<typename T>
 void operator >> (unlim_vector<T> &vec, const char* name) {
-	int dimention = vec.get_dimention();
-	int row = 0;
-	int col = 0;
-	double d = 0;
-	string str = string("vectors\\").append(name).append(".bin");
-	FILE* f = fopen(str.append(".").c_str(), "r");
+	int dim = 0;
+	string str = string("matrices\\").append(name);
+
+	ifstream f(name, ios::binary);
 	if (!f) throw except_empty_container("empty file");
-	fscanf(f, "%d", &dimention);
-	vec.reset(dimention);
-	for (int i = 0; i < dimention; ++i){
-		fscanf(f, "%lf", &d);
-		vec.vector_p[i] = (T)d;
+	f.read((char*)&dim, sizeof(int));
+
+	vec.reset(dim);
+	for (int i = 0; i < dim; ++i){
+		f.read((char*)&vec.vector_p[i], sizeof(vec.vector_p[i]));
 	}
-	fclose(f);
+	f.close();
 }
 
 template<typename T>
 void operator << (unlim_vector<T> &vec, FILE* f) {
-	int dimention = vec.get_dimention();
-	fprintf(f, "%d", dimention);
-	fprintf(f, "%c", ' ');
-	for (int i = 0; i < dimention; ++i){
-		fprintf(f, "%lf", (double)vec.vector_p[i]);
-		fprintf(f, "%c", ' ');
-	}
+	int dim = vec.get_dimention();
+	if (!f) throw except_empty_container("empty file");
 
-	for (int i = 0; i < dimention; ++i) {
-		fprintf(f, "%lf", (double)vec.vector_p[i]);
-		fprintf(f, "%c", ' ');
+	f.write((char*)&dim, sizeof(int));
+
+	for (int i = 0; i < dim; ++i) {
+		f.write((char*)&vec.vector_p[i], sizeof(vec.vector_p[i]));
 	}
-	fprintf(f, "%s", ";\n");
-	fclose(f);
+	f.close();
 }
 
 template<typename T>
 void operator >> (unlim_vector<T> &vec, FILE* f) {
-	int dimention = vec.get_dimention();
-	int row = 0;
-	int col = 0;
-	double d = 0;
+	int dim = 0;
 	if (!f) throw except_empty_container("empty file");
-	fscanf(f, "%d", &dimention);
-	vec.reset(dimention);
-	for (int i = 0; i < dimention; ++i){
-		fscanf(f, "%lf", &d);
-		vec.vector_p[i] = (T)d;
+
+	f.read((char*)&dim, sizeof(int));
+
+	vec.reset(dim);
+	for (int i = 0; i < dim; ++i){
+		f.read((char*)&vec.vector_p[i], sizeof(vec.vector_p[i]));
 	}
-	fclose(f);
+	f.close();
 }
 
 #endif
