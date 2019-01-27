@@ -597,51 +597,47 @@ int matr_rank(unlim_matrix<T> &matr) {
 
 template<typename T>
 void unlim_matrix<T>::print_to_file(const char* name, const char* type) {
-	string str = string("matrices\\").append(name);
-	FILE* f = fopen(str.append(".").append(type).c_str(), "w");
-	fprintf(f, "%d", row_cnt);
-	fprintf(f, "%c", ' ');
-	fprintf(f, "%d", col_cnt);
-	fprintf(f, "%c", ' ');
+	if (string(type) == string("bin")){
+		//int row_cnt = get_row_cnt();
+		//int col_cnt = get_col_cnt();
+		string str = string("matrices\\").append(name);
+		ofstream f(name, ios::binary);
+		if (!f) throw except_empty_container("empty file");
 
-	for (int i = 0; i < row_cnt; ++i) {
-		for (int j = 0; j < col_cnt; ++j) {
-			fprintf(f, "%lf", (double)matrix_p[i][j]);
-			fprintf(f, "%c", ' ');
+		f.write((char*)&row_cnt, sizeof(int));
+		f.write((char*)&col_cnt, sizeof(int));
+
+		for (int i = 0; i < row_cnt; ++i) {
+			for (int j = 0; j < col_cnt; ++j) {
+				f.write((char*)&(matrix_p[i][j]), sizeof(matrix_p[i][j]));
+			}
 		}
+		f.close();
 	}
-	fprintf(f, "%s", ";\n");
-	fclose(f);
+	if (string(type) == string("txt")){
+		string str = string("matrices\\").append(name).append(".txt");
+
+		ofstream f(str, ios::out);
+		if (!f) throw except_empty_container("empty file");
+		f << row_cnt << ' ';
+		f << col_cnt << ' ';
+
+		for (int i = 0; i < row_cnt; ++i){
+			for (int j = 0; j < col_cnt; ++j){
+				f << matrix_p[i][j] << ' ';
+			}
+		}
+		f.close();
+	}
 }
 
 template<typename T>
 void unlim_matrix<T>::read_from_file(const char* name, const char* type) {
-	/*int row = 0;
-	int col = 0;
-	double d = 0;
-	//string str = string("matrices\\").append(name);
-	//FILE* f = fopen(str.append(".").append(type).c_str(), "r");
-	if (strcmp(type, "bin"));
-	ifstream f(name, ios::binary);
-	if (!f) throw except_empty_container("empty file");
-	fscanf(f, "%d", &row);
-	fscanf(f, "%d", &col);
-	reset(row, col);
-	for (int i = 0; i < row; ++i){
-		for (int j = 0; j < col; ++j){
-			fscanf(f, "%lf", &d);
-			matrix_p[i][j] = (T)d;
-		}
-	}
-	fclose(f);*/
-
 	if (string(type) == string("bin")){
 		int row = 0;
 		int col = 0;
-		double d = 0;
 		string str = string("matrices\\").append(name);
 
-		char buf;
 		ifstream f(name, ios::binary);
 		if (!f) throw except_empty_container("empty file");
 		f.read((char*)&row, sizeof(int));
@@ -658,10 +654,9 @@ void unlim_matrix<T>::read_from_file(const char* name, const char* type) {
 	if (string(type) == string("txt")){
 		int row = 0;
 		int col = 0;
-		double d = 0;
 		string str = string("matrices\\").append(name).append(".txt");
 
-		ifstream f(name, ios::in);
+		ifstream f(str, ios::in);
 		if (!f) throw except_empty_container("empty file");
 		f >> row;
 		f >> col;
@@ -669,7 +664,6 @@ void unlim_matrix<T>::read_from_file(const char* name, const char* type) {
 		reset(row, col);
 		for (int i = 0; i < row; ++i){
 			for (int j = 0; j < col; ++j){
-				//f.read((char*)&matrix_p[i][j], sizeof(matrix_p[i][j]));
 				f >> matrix_p[i][j];
 			}
 		}
@@ -700,10 +694,8 @@ template<typename T>
 void operator >> (unlim_matrix<T> &matr, const char* name) {
 	int row = 0;
 	int col = 0;
-	double d = 0;
 	string str = string("matrices\\").append(name);
 
-	char buf;
 	ifstream f(name, ios::binary);
 	if (!f) throw except_empty_container("empty file");
 	f.read((char*)&row, sizeof(int));
@@ -719,43 +711,38 @@ void operator >> (unlim_matrix<T> &matr, const char* name) {
 }
 
 template<typename T>
-void operator << (unlim_matrix<T> &matr, ofstream f) {
+void operator << (unlim_matrix<T> &matr, ofstream &f) {
 	int row_cnt = matr.get_row_cnt();
 	int col_cnt = matr.get_col_cnt();
 	if (!f) throw except_empty_container("empty file");
-	//fprintf(f, "%d", row_cnt);
-	//fprintf(f, "%c", ' ');
-	//fprintf(f, "%d", col_cnt);
-	//fprintf(f, "%c", ' ');
 
-	f.write((char*)&row_cnt)
+	f.write((char*)&row_cnt, sizeof(int));
+	f.write((char*)&col_cnt, sizeof(int));
 
-	for (int i = 0; i < row_cnt; ++i) {
+		for (int i = 0; i < row_cnt; ++i) {
 		for (int j = 0; j < col_cnt; ++j) {
-			fprintf(f, "%lf", (double)matr.matrix_p[i][j]);
-			fprintf(f, "%c", ' ');
+			f.write((char*)&matr.matrix_p[i][j], sizeof(matr.matrix_p[i][j]));
 		}
-	}
-	fprintf(f, "%s", ";\n");
-	fclose(f);
+		}
+	f.close();
 }
 
 template<typename T>
-void operator >> (unlim_matrix<T> &matr, FILE* f) {
+void operator >> (unlim_matrix<T> &matr, ifstream &f) {
 	int row = 0;
 	int col = 0;
-	double d = 0;
 	if (!f) throw except_empty_container("empty file");
-	fscanf(f, "%d", &row);
-	fscanf(f, "%d", &col);
+
+	f.read((char*)&row, sizeof(int));
+	f.read((char*)&col, sizeof(int));
+
 	matr.reset(row, col);
 	for (int i = 0; i < row; ++i){
 		for (int j = 0; j < col; ++j){
-			fscanf(f, "%lf", &d);
-			matr.matrix_p[i][j] = (T)d;
+			f.read((char*)&matr.matrix_p[i][j], sizeof(matr.matrix_p[i][j]));
 		}
 	}
-	fclose(f);
+	f.close();
 }
 
 #endif
