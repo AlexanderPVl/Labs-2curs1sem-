@@ -425,7 +425,7 @@ void operator >> (unlim_vector<T> &vec, const char* name) {
 }
 
 template<typename T>
-void operator << (unlim_vector<T> &vec, FILE* f) {
+void operator << (unlim_vector<T> &vec, ofstream &f) {
 	int dim = vec.get_dimention();
 	if (!f) throw except_empty_container("empty file");
 
@@ -438,7 +438,7 @@ void operator << (unlim_vector<T> &vec, FILE* f) {
 }
 
 template<typename T>
-void operator >> (unlim_vector<T> &vec, FILE* f) {
+void operator >> (unlim_vector<T> &vec, ifstream &f) {
 	int dim = 0;
 	if (!f) throw except_empty_container("empty file");
 
