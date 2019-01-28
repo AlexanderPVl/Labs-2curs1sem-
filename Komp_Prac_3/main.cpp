@@ -63,11 +63,11 @@ void vector_test() {
 	v1.print("v1:	"); cout << endl;
 
 	//FILE* f = fopen("vectors//test_file.bin", "w");
-	//ofstream ofs("vectors//test_file", ios::binary);
-	//ifstream ifs("vectors//test_file", ios::binary);
+	ofstream ofs("vectors//test_file", ios::binary);
+	ifstream ifs("vectors//test_file", ios::binary);
 
-	//v3 << ofs;
-	//v2 >> ifs;
+	v3 << ofs;
+	v2 >> ifs;
 	v2.print("v2:	"); cout << endl;
 
 	cout << endl;
@@ -134,7 +134,7 @@ void matrix_test() {
 	cout << "\nRank = " << matr_rank(i_matr2);
 	//determinant<int>(matr3);
 	inverse<int>(matr5).print();*/
-	
+
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f } });
 
 	i_matr1.print_to_file("int_matrix_19", "txt");
@@ -158,7 +158,7 @@ void matrix_test() {
 	cout << "i_matr2:" << endl; i_matr2.print();
 
 	cout << endl << "===============End of test===============" << endl;
-	
+
 }
 
 void convert_to_int() {
