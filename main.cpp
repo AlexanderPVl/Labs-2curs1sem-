@@ -1,4 +1,7 @@
 #include "bin_tree.h"
+#include <algorithm>
+
+//using namespace std;
 
 void bin_tree_fucn(){
 	node<int, char> nd1;
@@ -27,11 +30,9 @@ void queue_func(){
 	for (int i = 1; i <= 17; ++i){
 		q.push(i);
 	}
-	for (int i = 0; i < 30; ++i){
-		q.pop(a);
-		std::cout << a;
-	}
-	//q.print();
+
+	std::for_each(q.begin(), q.end(), [](int t){std::cout << t << " "; });
+	q.qdelete();
 }
 
 int main(){
