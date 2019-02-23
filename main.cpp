@@ -32,7 +32,13 @@ void queue_func(){
 	}
 
 	std::for_each(q.begin(), q.end(), [](int t){std::cout << t << " "; });
-	q.qdelete();
+	//q.delete_all();
+	for (int i = 1; i <= 4; ++i){
+		q.pop();
+	}
+	q.delete_excess();
+	std::cout << std::endl;
+	std::for_each(q.last(), q.end(), [](int t){std::cout << t << " "; });
 }
 
 int main(){
