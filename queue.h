@@ -38,10 +38,11 @@ public:
 	T pop();
 	void pop(T &obj);
 	void print();
-	void qdelete();
+	void delete_all();
+	void delete_excess();
 	iterator begin() { return iterator(fout); }
-	iterator end() {
-		return nullptr; /*return iterator(fin);*/ }
+	iterator last() { return iterator(last_added); }
+	iterator end() { return nullptr; }
 	bool operator()() { return fin; }
 private:
 	qnode<T>* fin;
@@ -55,9 +56,20 @@ queue<T>::queue(){
 }
 
 template<class T>
-void queue<T>::qdelete(){
+void queue<T>::delete_all(){
 	qnode<T>* curr = new qnode<T>(-1);
 	while (last_added){
+		curr = last_added;
+		last_added = last_added->next;
+		delete curr;
+	}
+	fin = fout = nullptr;
+}
+
+template<class T>
+void queue<T>::delete_excess(){
+	qnode<T>* curr = new qnode<T>(-1);
+	while (last_added != fout){
 		curr = last_added;
 		last_added = last_added->next;
 		delete curr;
@@ -85,7 +97,7 @@ void queue<T>::push(T &obj){
 	new_qnode->obj = fout->obj;
 	fout->obj = obj;
 	fout->next = new_qnode;
-	last_added = new_qnode;
+	last_added = fout;
 }
 
 template<class T>
@@ -126,6 +138,7 @@ void queue<T>::pop(T &obj){
 
 template<class T>
 void queue<T>::print(){
+	if (!fin) return;
 	qnode<T> *buf = new qnode<T>(fout->obj);
 	buf = fout;
 	while (buf != nullptr){
