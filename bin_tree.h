@@ -43,12 +43,18 @@ class binary_tree{
 public:
 	class iterator {
 	public:
+		typedef iterator self_type;
+		typedef node<Key, Val>& reference;
+		typedef node<Key, Val> value_type;
+		typedef node<Key, Val>* pointer;
+		typedef std::forward_iterator_tag iterator_category;
+		typedef int difference_type;
 		~iterator() = default;
 		node<Key, Val>& operator * () { return *curr_node; }
-		iterator operator ++ () { lmove(curr_node); }
-		bool operator !() { return curr_node ? 0 : 1; }
+		self_type operator ++ () { lmove(curr_node); }
+		bool operator ! () { return curr_node ? 0 : 1; }
 		void set_start(node<Key, Val> *base) { curr_node = base; }
-		_type<iterator> get_type(){ return _type<iterator>(); }
+		_type<self_type> get_type(){ return _type<self_type>(); }
 	private:
 		node<Key, Val> *curr_node;
 		typedef iterator self_type;
@@ -62,6 +68,7 @@ public:
 	void add(node<Key, Val>& nd);
 	void add(Key key_, Val val_);
 	node<Key, Val>* get_base(){ return base_node; }
+	void delete_tree(node<Key, Val> *base);
 
 	//ITERATING
 	template<class UnaryFunction>
@@ -101,6 +108,13 @@ void print_tree(node<Key, Val> *base){
 	if (base->l) print_tree(base->l);
 	print(*base);
 	if (base->r) print_tree(base->r);
+}
+
+template<class Key, class Val>
+void  binary_tree<Key, Val>::delete_tree(node<Key, Val> *base){
+	if (base->l) print_tree(base->l);
+	if (base->r) print_tree(base->r);
+	delete base;
 }
 
 template<class Key, class Val>
