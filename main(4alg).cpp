@@ -1,7 +1,12 @@
 #include "bin_tree.h"
 #include <algorithm>
 
+#define filter_tree_it(f) filter_iterator<binary_tree<int, char>::iterator, decltype(f)>
+
 //using namespace std;
+
+auto general_lambda = [](){};
+typedef decltype(general_lambda) lambda_type;
 
 void bin_tree_fucn(){
 	node<int, char> nd1;
@@ -21,19 +26,24 @@ void bin_tree_fucn(){
 
 	//std::for_each(bt.begin(), bt.end(), [](qnode<node<int, char>*> nd){ print(*nd.obj); });
 
-	auto f = [](qnode<node<int, char>*> qn){ if (qn.obj->data.key > 8) std::cout << qn.obj->data.key << " is bigger than 8" << std::endl; };
+	auto _f = [](qnode<node<int, char>*> qn){ if (qn.obj->data.key > 8) std::cout << qn.obj->data.key << " is bigger than 8" << std::endl; };
+	auto _g = [](binary_tree<int, char>::iterator bt_i){ std::cout << (*bt_i).obj->data.key << " is bigger than 8" << std::endl; };
+
+
+	typedef filter_iterator<binary_tree<int, char>::iterator, lambda_type> filter_tree_iter;
+
+	auto _u = [](binary_tree<int, char>::iterator bt_i, bool &b){ b = (*bt_i).obj->data.key > 8; };
 
 	bt.print_tree();
 
-	filter_iterator < binary_tree<int, char>::iterator, decltype(f)> f_it();
-	std::for_each(bt.begin(), bt.end(), f);
+	//std::for_each(filter_tree_iter(bt.begin(), _u), filter_tree_iter(bt.end()), _u);
+	std::for_each(filter_iterator<binary_tree<int, char>::iterator, decltype(_u)>(bt.begin()), filter_iterator<binary_tree<int, char>::iterator, decltype(_u)>(bt.end()), _g);
 
 	bt.delete_tree(&base(bt));
 }
 
 void stack_func(){
 	stack<int> st;
-	int a;
 	for (int i = 1; i <= 17; ++i){
 		st.push(i);
 	}
