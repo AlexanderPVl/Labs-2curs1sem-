@@ -16,6 +16,7 @@ template <class Key, class Val>
 struct pair{
 	Key key;
 	Val val;
+	bool operator != (pair <Key, Val> p) { return (p.key != key || p.val != val); }
 };
 
 template <class Key, class Val>
@@ -24,6 +25,8 @@ struct node{
 	pair<Key, Val> data;
 	node<Key, Val> *l; // left
 	node<Key, Val> *r; // right;
+	bool operator == (node<Key, Val>& nd) { return (nd.l == l && nd.r == r && nd.data == data); }
+	bool operator != (node<Key, Val>& nd) { return (nd.l != l || nd.r != r || nd.data != data); }
 	void operator = (pair<Key, Val>& p){ data.key = p.key; data.val = p.val; }
 	void operator = (node<Key, Val>& nd){ data.key = nd.data.key; data.val = nd.data.val; }
 };
@@ -43,23 +46,26 @@ class binary_tree{
 public:
 	class iterator {
 	public:
+		iterator(qnode<node<Key, Val>*>* ptr_) : curr_node(ptr_) {}
 		typedef iterator self_type;
-		typedef node<Key, Val>& reference;
-		typedef node<Key, Val> value_type;
-		typedef node<Key, Val>* pointer;
+		//typedef node<Key, Val>& reference;
+		//typedef node<Key, Val> value_type;
+		//typedef node<Key, Val>* pointer;
+		typedef qnode<node<Key, Val>*>& reference;
+		typedef qnode<node<Key, Val>*> value_type;
+		typedef qnode<node<Key, Val>*>* pointer;
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 		~iterator() = default;
-		node<Key, Val>& operator * () { return *curr_node; }
-		self_type operator ++ () { lmove(curr_node); }
-		bool operator ! () { return curr_node ? 0 : 1; }
-		void set_start(node<Key, Val> *base) { curr_node = base; }
+		qnode<node<Key, Val>*> operator * () { return *curr_node; }
+		self_type operator ++ () { curr_node = curr_node->next; return *this; }
+		bool operator ! () { return curr_node; }
+		bool operator != (iterator it) { return it.curr_node != curr_node; }
+		bool operator == (iterator it) { return it.curr_node == curr_node; }
 		_type<self_type> get_type(){ return _type<self_type>(); }
 	private:
-		node<Key, Val> *curr_node;
+		qnode<node<Key, Val>*>* curr_node;
 		typedef iterator self_type;
-		typedef Key key_type;
-		typedef Val val_type;
 	};
 	_type<iterator> get_iter_type(){ return _type<iterator>(); }
 	binary_tree() { empty = true; }
@@ -70,7 +76,9 @@ public:
 	node<Key, Val>* get_base(){ return base_node; }
 	void delete_tree(node<Key, Val> *base);
 
-	//ITERATING
+	iterator begin() { return iterator(node_queue.get_fout()); }
+	iterator end() { return iterator(nullptr); }
+
 	template<class UnaryFunction>
 	void for_each(UnaryFunction f, node<Key, Val> *base)
 	{
@@ -86,9 +94,10 @@ public:
 		if (min <= keyof(base) && keyof(base) <= max) f(*base);
 		if (base->r && keyof(base->r) <= max) range_for(f, base->r, min, max);
 	}
-
-private:
+	void print_tree(){ for (qnode<node<Key, Val>*>* bufnq = node_queue.get_fout(); bufnq; bufnq = bufnq->next) { print(*bufnq->obj); } }
+	private:
 	bool empty;
+	queue<node<Key, Val>*> node_queue;
 	node<Key, Val> *base_node;
 };
 
@@ -112,9 +121,10 @@ void print_tree(node<Key, Val> *base){
 
 template<class Key, class Val>
 void  binary_tree<Key, Val>::delete_tree(node<Key, Val> *base){
-	if (base->l) print_tree(base->l);
-	if (base->r) print_tree(base->r);
+	if (base->l) delete_tree(base->l);
+	if (base->r) delete_tree(base->r);
 	delete base;
+	node_queue.delete_queue();
 }
 
 template<class Key, class Val>
@@ -204,6 +214,7 @@ void binary_tree<Key, Val>::add(Key key_, Val val_){
 	base_node->data.val = val_;
 	base_node->l = nullptr;
 	base_node->r = nullptr;
+	node_queue.push(base_node);
 	empty = false;
 
 	return;
@@ -215,6 +226,7 @@ void binary_tree<Key, Val>::add(Key key_, Val val_){
 	new_node->data.key = key_;
 	new_node->data.val = val_;
 	new_node->l = new_node->r = nullptr;
+	node_queue.push(new_node);
 
 	do{
 		buf = curr;
@@ -223,3 +235,26 @@ void binary_tree<Key, Val>::add(Key key_, Val val_){
 
 	insert(curr, new_node);
 }
+
+template<class Iter, class Pred>
+class filter_iterator{
+public:
+	filter_iterator(Iter it_) : it(it_) {}
+	filter_iterator(Pred pr_) { pr = pr_; }
+	void pred_init(Pred pr_) { pr = pr_; }
+	typedef filter_iterator self_type;
+	typedef Iter& reference;
+	typedef Iter value_type;
+	typedef Iter* pointer;
+	typedef std::forward_iterator_tag iterator_category;
+	typedef int difference_type;
+	bool operator != (Iter it_) { return it != it_ }
+	bool operator == (Iter it_) { return it == it_; }
+	void operator () (Pred pr_) { pr = pr_; }
+	filter_iterator operator ++ (Pred pr_) { while (it != Iter(nullptr)) { ++it; if (!pr_(it)) continue; } }
+	filter_iterator operator ++ () { while (it != Iter(nullptr)) { ++it; if (!pr(it)) continue; } }
+	~filter_iterator() = default;
+private:
+	Iter it;
+	Pred pr;
+};
