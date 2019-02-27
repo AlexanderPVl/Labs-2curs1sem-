@@ -158,26 +158,26 @@ public:
 		typedef iterator self_type;
 		typedef T& reference;
 		typedef T value_type;
-		typedef qnode<T>* pointer;
+		typedef T* pointer;
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 		iterator() { curr = nullptr; }
-		iterator(pointer qn) { curr = qn; }
+		iterator(qnode<T>* qn) { curr = qn; }
 		reference operator *() { return curr->obj; }
 		self_type operator ++() { if (curr) curr = curr->next; return *this; }
 		void operator = (pointer qn) { curr = qn; }
 		bool operator != (self_type it) { return curr != it.curr; }
 		bool operator == (self_type it) { return curr == it.curr; }
 	private:
-		pointer curr;
+		qnode<T>* curr;
 	};
 	queue();
 	void push(T &obj);
 	T pop();
 	void pop(T &obj);
 	void print();
-	void delete_all();
-	void delete_excess();
+	void delete_queue();
+	qnode<T>* get_fout() { return fout; }
 	iterator begin() { return iterator(fout); }
 	iterator end() { return nullptr; }
 	bool operator()() { return fin; }
@@ -215,6 +215,16 @@ T queue<T>::pop(){
 	fout = fout->next;
 	delete buf_qnode;
 	return ret;
+}
+
+template<class T>
+void queue<T>::delete_queue(){
+	qnode<T>* curr = fout;
+	while (curr){
+		fout = fout->next;
+		delete curr;
+		curr = fout;
+	}
 }
 
 template<class T>
