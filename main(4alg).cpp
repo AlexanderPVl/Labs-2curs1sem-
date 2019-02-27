@@ -16,13 +16,18 @@ void bin_tree_fucn(){
 	bt.add(11, 'x');
 	bt.add(13, 'w');
 
-	//print_tree(&base(bt));
-
 	bt.range_for([](node<int, char> &nd){ print(nd); }, &base(bt), 8, 11);
 	bt.for_each([](node<int, char> &nd){ print(nd); }, &base(bt));
 
-	binary_tree<int, char>::iterator t;
-	//print(*t);
+	//std::for_each(bt.begin(), bt.end(), [](qnode<node<int, char>*> nd){ print(*nd.obj); });
+
+	auto f = [](qnode<node<int, char>*> qn){ if (qn.obj->data.key > 8) std::cout << qn.obj->data.key << " is bigger than 8" << std::endl; };
+
+	bt.print_tree();
+
+	filter_iterator < binary_tree<int, char>::iterator, decltype(f)> f_it();
+	std::for_each(bt.begin(), bt.end(), f);
+
 	bt.delete_tree(&base(bt));
 }
 
@@ -58,9 +63,10 @@ void queue_func(){
 }
 
 int main(){
-	//bin_tree_fucn();
-	//stack_func();
+	bin_tree_fucn();
+	stack_func();
 	queue_func();
+
 
 	return 0;
 }
