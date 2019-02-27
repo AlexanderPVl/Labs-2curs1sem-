@@ -240,7 +240,8 @@ template<class Iter, class Pred>
 class filter_iterator{
 public:
 	filter_iterator(Iter it_) : it(it_) {}
-	filter_iterator(Pred pr_) { pr = pr_; }
+	filter_iterator(Pred pr_) : pr(pr_) {}
+	filter_iterator(Iter it_, Pred pr_) : it(it_), pr(pr_) {}
 	void pred_init(Pred pr_) { pr = pr_; }
 	typedef filter_iterator self_type;
 	typedef Iter& reference;
@@ -248,11 +249,13 @@ public:
 	typedef Iter* pointer;
 	typedef std::forward_iterator_tag iterator_category;
 	typedef int difference_type;
-	bool operator != (Iter it_) { return it != it_ }
+	bool operator == (filter_iterator f_it) { return it == f_it.it; }
+	bool operator != (filter_iterator f_it) { return it != f_it.it; }
+	bool operator != (Iter it_) { return it != it_; }
 	bool operator == (Iter it_) { return it == it_; }
 	void operator () (Pred pr_) { pr = pr_; }
-	filter_iterator operator ++ (Pred pr_) { while (it != Iter(nullptr)) { ++it; if (!pr_(it)) continue; } }
-	filter_iterator operator ++ () { while (it != Iter(nullptr)) { ++it; if (!pr(it)) continue; } }
+	Iter operator * () { return it; }
+	filter_iterator operator ++ () { while (it != Iter(nullptr)) { bool b; ++it; pr(it, b); if (!b) continue; } return *this; }
 	~filter_iterator() = default;
 private:
 	Iter it;
