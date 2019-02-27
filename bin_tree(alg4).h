@@ -57,11 +57,13 @@ public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 		~iterator() = default;
-		qnode<node<Key, Val>*> operator * () { return *curr_node; }
+		qnode<node<Key, Val>*> operator * () { if (!curr_node) std::cout << "S.O.S!"; return *curr_node; }
 		self_type operator ++ () { curr_node = curr_node->next; return *this; }
 		bool operator ! () { return curr_node; }
+		bool operator () (iterator it) { curr_node = it.curr_node; }
 		bool operator != (iterator it) { return it.curr_node != curr_node; }
 		bool operator == (iterator it) { return it.curr_node == curr_node; }
+		void operator = (iterator it) { curr_node = it.curr_node; }
 		_type<self_type> get_type(){ return _type<self_type>(); }
 	private:
 		qnode<node<Key, Val>*>* curr_node;
@@ -253,9 +255,22 @@ public:
 	bool operator != (filter_iterator f_it) { return it != f_it.it; }
 	bool operator != (Iter it_) { return it != it_; }
 	bool operator == (Iter it_) { return it == it_; }
-	void operator () (Pred pr_) { pr = pr_; }
+	void operator () (Iter it_) { it = it_; }
 	Iter operator * () { return it; }
-	filter_iterator operator ++ () { while (it != Iter(nullptr)) { bool b; ++it; pr(it, b); if (!b) continue; } return *this; }
+	filter_iterator operator ++ () {
+		Iter it_ = it;
+		bool b;
+		while (it_ != Iter(nullptr)) {
+			pr(it_, b);
+			if (b){
+				it = it_;
+				return *this;
+			}
+			it_++;
+		}
+		it = it_;
+		return *this;
+	}
 	~filter_iterator() = default;
 private:
 	Iter it;
