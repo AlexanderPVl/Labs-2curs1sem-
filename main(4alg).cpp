@@ -32,12 +32,11 @@ void bin_tree_fucn(){
 
 	typedef filter_iterator<binary_tree<int, char>::iterator, lambda_type> filter_tree_iter;
 
-	auto _u = [](binary_tree<int, char>::iterator bt_i, bool &b){ b = (*bt_i).obj->data.key > 8; };
+	auto _u = [](binary_tree<int, char>::iterator bt_i, bool &b){ b = (*bt_i).obj->data.key == 9; };
 
 	bt.print_tree();
 
-	//std::for_each(filter_tree_iter(bt.begin(), _u), filter_tree_iter(bt.end()), _u);
-	std::for_each(filter_iterator<binary_tree<int, char>::iterator, decltype(_u)>(bt.begin()), filter_iterator<binary_tree<int, char>::iterator, decltype(_u)>(bt.end()), _g);
+	std::for_each(filter_tree_it(_u)(bt.begin()), filter_tree_it(_u)(bt.end()), _g);
 
 	bt.delete_tree(&base(bt));
 }
