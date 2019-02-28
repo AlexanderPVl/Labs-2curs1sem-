@@ -22,13 +22,15 @@ void rand_gen()
 }
 
 bool is_polyndrome(int t){
-	string buf;
-	while (t){
-		buf.append(to_string(t % 10));
-		t /= 10;
+	typedef string::iterator s_iterator;
+	typedef reverse_iterator<string::iterator> rs_iterator;
+	string buf = to_string(t);
+	int i = 0;
+	string rbuf(buf.rbegin(), buf.rend() - buf.length() / 2);
+	for (auto c : rbuf){
+		if (buf[i++] != c) return false;
 	}
-	int len = buf.length();
-	for (int i = 0; i < len; ++i){ if (buf[i] != buf[len - i - 1]) return false; }
+	cout << rbuf;
 	return true;
 }
 
