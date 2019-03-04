@@ -97,7 +97,7 @@ public:
 		if (base->r && keyof(base->r) <= max) range_for(f, base->r, min, max);
 	}
 	void print_tree(){ for (qnode<node<Key, Val>*>* bufnq = node_queue.get_fout(); bufnq; bufnq = bufnq->next) { print(*bufnq->obj); } }
-	private:
+private:
 	bool empty;
 	queue<node<Key, Val>*> node_queue;
 	node<Key, Val> *base_node;
@@ -211,15 +211,15 @@ void binary_tree<Key, Val>::add(node<Key, Val>& nd){
 template <class Key, class Val>
 void binary_tree<Key, Val>::add(Key key_, Val val_){
 	if (empty){
-	base_node = new node<Key, Val>;
-	base_node->data.key = key_;
-	base_node->data.val = val_;
-	base_node->l = nullptr;
-	base_node->r = nullptr;
-	node_queue.push(base_node);
-	empty = false;
+		base_node = new node<Key, Val>;
+		base_node->data.key = key_;
+		base_node->data.val = val_;
+		base_node->l = nullptr;
+		base_node->r = nullptr;
+		node_queue.push(base_node);
+		empty = false;
 
-	return;
+		return;
 	}
 
 	node<Key, Val> *curr = base_node;
@@ -241,7 +241,16 @@ void binary_tree<Key, Val>::add(Key key_, Val val_){
 template<class Iter, class Pred>
 class filter_iterator{
 public:
-	filter_iterator(Iter it_) : it(it_) {}
+	filter_iterator(Iter it_) : it(it_) {
+		while (it_ != Iter(nullptr)) {
+			if (pr(it_)){
+				it = it_;
+				return;
+			}
+			++it_;
+		}
+		it = it_;
+	}
 	filter_iterator(Pred pr_) : pr(pr_) {}
 	filter_iterator(Iter it_, Pred pr_) : it(it_), pr(pr_) {}
 	void pred_init(Pred pr_) { pr = pr_; }
@@ -258,15 +267,14 @@ public:
 	void operator () (Iter it_) { it = it_; }
 	Iter operator * () { return it; }
 	filter_iterator operator ++ () {
+		++it;
 		Iter it_ = it;
-		bool b;
 		while (it_ != Iter(nullptr)) {
-			pr(it_, b);
-			if (b){
+			if (pr(it_)){
 				it = it_;
 				return *this;
 			}
-			it_++;
+			++it_;
 		}
 		it = it_;
 		return *this;
