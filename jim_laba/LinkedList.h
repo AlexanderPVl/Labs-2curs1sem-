@@ -32,6 +32,7 @@ public:
 	void print();
 	void rprint();
 	void delete_all();
+	void auto_fill(int);
 	bool is_empty() { return base_node == nullptr; }
 	int elem_cnt();
 	node<Key, Val>* get_base() { return base_node; }
@@ -203,12 +204,11 @@ void linked_list<Key, Val>::end_add(){
 template<class Key, class Val>
 void linked_list<Key, Val>::delete_all(){
 	node<Key, Val>* curr = base_node;
-	node<Key, Val>* term = base_node;
-	while (curr != term){
-		base_node = base_node->next;
-		curr = base_node;
-		delete curr;
-		
+	node<Key, Val>* buff = curr;
+	while (curr != base_node){
+		buff = curr;
+		curr = curr->next;
+		delete buff;
 	}
 	delete base_node;
 	base_node = nullptr;
@@ -245,17 +245,17 @@ void to_left(node<Key, Val>** nd, int cnt) {
 }
 
 template<class Key, class Val>
-void cyclic_right(linked_list<Key, Val> ll, int cnt) {
-	if (ll.is_empty() || ll.elem_cnt() == 1) return;
+void cyclic_right(linked_list<Key, Val>& ll, int cnt) {
+	if (ll.is_empty() || ll.elem_cnt() == 1 || cnt <= 0) return;
 	int elcnt = ll.elem_cnt();
 	cnt = cnt % elcnt;
 	node<Key, Val>* node_arr = new node<Key, Val>[elcnt];
 	node<Key, Val>* base = ll.get_base();
+	node<Key, Val>* curr = base;
 
 	for (int i = 0; i < elcnt; ++i){
-		node_arr[(i + cnt) % elcnt] = *base;
-
-		base = base->next;
+		node_arr[(i + cnt) % elcnt] = *curr;
+		curr = curr->next;
 	}
 
 	ll.delete_all();
@@ -263,19 +263,30 @@ void cyclic_right(linked_list<Key, Val> ll, int cnt) {
 }
 
 template<class Key, class Val>
-void cyclic_left(linked_list<Key, Val> ll, int cnt) {
-	if (ll.is_empty() || ll.elem_cnt() == 1) return;
+void cyclic_left(linked_list<Key, Val>& ll, int cnt) {
+	if (ll.is_empty() || ll.elem_cnt() == 1 || cnt <= 0) return;
 	int elcnt = ll.elem_cnt();
 	cnt = cnt % elcnt;
 	node<Key, Val>* node_arr = new node<Key, Val>[elcnt];
 	node<Key, Val>* base = ll.get_base();
+	node<Key, Val>* curr = base;
 
 	for (int i = 0; i < elcnt; ++i){
-		node_arr[(elcnt - cnt + i) % elcnt] = *base;
-
-		base = base->next;
+		node_arr[(elcnt - cnt + i) % elcnt] = *curr;
+		curr = curr->next;
 	}
 
 	ll.delete_all();
 	ll.cpy_from(node_arr, elcnt);
+}
+
+template<class Key, class Val>
+void linked_list<Key, Val>::auto_fill(int) {}
+
+template<>
+void linked_list<int, char>::auto_fill(int el_cnt){
+	char mod = 'z' - 'a' + 1;
+	for (int i = 0; i < el_cnt; ++i){
+		end_add(node<int, char>(i, 'a' + i % mod));
+	}
 }
