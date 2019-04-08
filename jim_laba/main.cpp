@@ -12,15 +12,14 @@ void bin_tree(){
 	tree1.add(7, 'e');
 	tree1.add(6, 'e');
 
-	//print_tree(tree1.get_base());
 	subtree_size(tree1.get_base()->r->r, &sz);
 	std::cout << "size: " << sz << std::endl;
-	//problem_10(tree1.get_base());
+
 	problem_pred(tree1.get_base(), case_8<int, char>);
 	print(tree1.get_base()->l->r);
 }
 
-void link_list(){
+void link_list1(){
 	linked_list<int, char> list1;
 	linked_list<int, char> list2;
 	node<int, char> nd1;
@@ -40,14 +39,25 @@ void link_list(){
 	//list1.del_lastval('b');
 	cyclic_left(list1, 2);
 
+	list1.print();
 
+	std::cout << list1.elem_cnt() << std::endl;
+}
+
+void link_list2(){
+	linked_list<int, char> list1;
+
+	list1.auto_fill(9);
+	cyclic_left(list1, 2);
+	//list1.delete_all();
 	list1.print();
 
 	std::cout << list1.elem_cnt() << std::endl;
 }
 
 int main(){
-	//link_list();
-	bin_tree();
+	//link_list1();
+	link_list2();
+	//bin_tree();
 
 }
