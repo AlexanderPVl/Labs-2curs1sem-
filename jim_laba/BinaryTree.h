@@ -88,7 +88,6 @@ void  binary_tree<Key, Val>::delete_tree(tnode<Key, Val> *base){
 	if (base->l) delete_tree(base->l);
 	if (base->r) delete_tree(base->r);
 	delete base;
-	node_array.delete_all();
 }
 
 template<class Key, class Val>
