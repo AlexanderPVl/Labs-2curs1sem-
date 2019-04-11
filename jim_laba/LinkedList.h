@@ -1,7 +1,45 @@
 #pragma once
 
 #include <iostream>
+#include <set>
 #include <ostream>
+#include <algorithm>
+
+template<class T>
+struct general_set{
+	general_set() { arr = nullptr; size = 0; }
+	void insert(T& obj){
+		if (!size) {
+			arr = new T[1];
+			arr[0] = obj;
+			++size;
+			return;
+		}
+		for (int i = 0; i < size; ++i){
+			if (arr[i] == obj)return;
+		}
+		T* arr1 = new T[size];
+		for (int i = 0; i < size; ++i){
+			arr1[i] = arr[i];
+		}
+		delete[] arr;
+		arr = new T[size + 1];
+		for (int i = 0; i < size; ++i){
+			arr[i] = arr1[i];
+		}
+		delete[] arr1;
+		arr[size] = obj;
+		++size;
+	}
+	bool has(T& obj){
+		for (int i = 0; i < size; ++i){
+			if (arr[i] == obj)return 1;
+		}
+		return 0;
+	}
+	T* arr;
+	int size;
+};
 
 template<class Key, class Val>
 struct node{
@@ -12,10 +50,13 @@ struct node{
 	Key key;
 	Val val;
 	void operator = (node &nd){ key = nd.key; val = nd.val; }
+	bool operator == (node &nd){ return key == nd.key && val == nd.val; }
+	bool operator < (node &nd){ return key < nd.key || val < nd.val; }
+	bool operator != (node &nd){ return key != nd.key || val != nd.val; }
 };
 
 template<class Key, class Val>
-class linked_list{
+class linked_list{ 
 public:
 	linked_list() { base_node = nullptr; }
 	linked_list(const node<Key, Val>*, int);
@@ -217,14 +258,23 @@ void linked_list<Key, Val>::delete_all(){
 template<class Key, class Val>
 bool linked_list<Key, Val>::operator == (linked_list<Key, Val> ll) {
 	if (ll.is_empty() && is_empty()) return true;
-	if (ll.elem_cnt() != elem_cnt()) return false;
+	//if (ll.elem_cnt() != elem_cnt()) return false;
 	node<Key, Val>* curr = base_node;
 	node<Key, Val>* ll_curr = ll.base_node;
+	node<Key, Val> buff;
+	general_set<node<Key, Val>> v1;
+	general_set<node<Key, Val>> v2;
+	//general_set<node<Key, Val>> v3;
 	do{
+		buff = *curr;
+		v1.insert(buff);
+		buff = *ll_curr;
+		v2.insert(buff);
 		curr = curr->next;
 		ll_curr = ll_curr->next;
-		if (curr->val != ll_curr->val || curr->key != ll_curr->key) return false;
 	} while (curr != base_node);
+	if (v1.size != v2.size) return false;
+	for (int i = 0; i < v1.size; ++i)if (!v2.has(v1.arr[i]))return false;
 	return true;
 }
 
@@ -289,4 +339,10 @@ void linked_list<int, char>::auto_fill(int el_cnt){
 	for (int i = 0; i < el_cnt; ++i){
 		end_add(node<int, char>(i, 'a' + i % mod));
 	}
+}
+
+void prt_truth(bool p){
+	if (p)std::cout << "Yes";
+	else std::cout << "no";
+	std::cout << std::endl;
 }
