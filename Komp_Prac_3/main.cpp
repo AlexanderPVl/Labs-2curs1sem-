@@ -1,7 +1,8 @@
 #include <iomanip>
 #include <iostream>
-#include "unlim_vector.h"
+//#include "unlim_vector.h"
 #include "derivative_matrix.h"
+#include "pca.h"
 
 typedef unlim_vector<double>::t::iterator d_vect_iterator;
 typedef unlim_vector<float>::t::iterator f_vect_iterator;
@@ -63,11 +64,11 @@ void vector_test() {
 	v1.print("v1:	"); cout << endl;
 
 	//FILE* f = fopen("vectors//test_file.bin", "w");
-	ofstream ofs("vectors//test_file", ios::binary);
-	ifstream ifs("vectors//test_file", ios::binary);
+	//ofstream ofs("vectors//test_file", ios::binary);
+	//ifstream ifs("vectors//test_file", ios::binary);
 
-	v3 << ofs;
-	v2 >> ifs;
+	//v3 << ofs;
+	//v2 >> ifs;
 	v2.print("v2:	"); cout << endl;
 
 	cout << endl;
@@ -134,7 +135,7 @@ void matrix_test() {
 	cout << "\nRank = " << matr_rank(i_matr2);
 	//determinant<int>(matr3);
 	inverse<int>(matr5).print();*/
-
+	
 	unlim_matrix<float> matr2({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f } });
 
 	i_matr1.print_to_file("int_matrix_19", "txt");
@@ -158,7 +159,20 @@ void matrix_test() {
 	cout << "i_matr2:" << endl; i_matr2.print();
 
 	cout << endl << "===============End of test===============" << endl;
+	
+}
 
+void pca_test(){
+	pca pca1({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f }, { 4, 8, 567 }, { 4, 8, 543 }, { 4345, 8, 90009 }, { 4, 54548, 90009 } });
+	//pca1.nipals();
+	three_tuple<unlim_matrix<double>> pca1nip;
+	pca1nip = pca1.nipals_PTE;
+	pca1nip.print();
+	cout << "leverage: " << pca1.leverage(0) << endl;
+	cout << "variance: " << pca1.variance(1) << endl;
+
+	cout << "TRVC: " << pca1.TRVC() << endl;
+	cout << "ERVC: " << pca1.ERVC() << endl;
 }
 
 void convert_to_int() {
@@ -173,12 +187,14 @@ void convert_to_int() {
 int main() {
 	cout << "Program start." << endl << endl;
 
-	system("MD vectors");
+	/*system("MD vectors");
 	system("MD matrices");
 
 	convert_to_int();
 	vector_test();
-	matrix_test();
+	matrix_test();*/
+
+	pca_test();
 
 	cout << endl << endl << "Program ran to the end" << endl;
 
