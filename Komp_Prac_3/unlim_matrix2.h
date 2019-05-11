@@ -24,6 +24,9 @@ public:
 	void set_correct(bool correct_);
 	void set_empty(bool empty_);
 	void reset(int row_, int col_);
+	void reset(vector<vector<T> > &matr);
+	void append_row(vector<T> v);
+	void append_col(vector<T> v);
 
 	bool is_correct() const;
 	bool is_empty() const;
@@ -38,7 +41,10 @@ public:
 	unlim_matrix<U> convert_to();
 	template<typename U>
 	unlim_matrix<U> convert_to(_type<U>&);
+	unlim_vector<T> convert_to_vector();
 	void print(char sep = ' ', int setw_arg = 1) const;
+	T row_sum(int j);
+	T col_sum(int j);
 
 	template<typename U>
 	unlim_matrix<U> hadamard_product(unlim_matrix<U> &matr) const;
@@ -51,7 +57,11 @@ public:
 	friend unlim_matrix<double> inverse(unlim_matrix<T> &matr);
 
 	vector<T>& operator [](int ind);
+	vector<T> operator ()(int ind);
 	void operator = (unlim_matrix<T> &matr);
+	void operator = (unlim_vector<T> &v);
+	void operator = (vector<T> &v);
+	void operator / (T);
 
 	vector<vector <T> > &matrix_p;
 protected:
@@ -110,6 +120,81 @@ void unlim_matrix<T>::reset(int row_, int col_) {
 		correct = true;
 		for (i = 0; i < row_; ++i){
 			matrix_s.push_back(vector<T>(col_, 0));
+		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::reset(vector<vector<T> > &matr) {
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	int col;
+	if (matr.empty()) { empty = true; }
+	else empty = false;
+	correct = true;
+	col = matr[0].size();
+	for (auto it : matr){
+		if (it.size() != col) { correct = false; }
+	}
+	if (correct == false){
+		row_cnt = 0;
+		col_cnt = 0;
+	}
+	else {
+		row_cnt = matr.size();
+		col_cnt = matr[0].size();
+	}
+	reset(row_cnt, col_cnt);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			matrix_s[i][j] = matr[i][j];
+		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::append_row(vector<T> v){
+	if (empty){
+		reset(1, v.size());
+		for (int i = 0; i < col_cnt; ++i) matrix_s[0][i] = v[i];
+		return;
+	}
+	if (v.size() != col_cnt) return;
+	unlim_matrix<T> buf(matrix_s, 1);
+	buf.reset(row_cnt + 1, col_cnt);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			buf[i][j] = matrix_s[i][j];
+		}
+	}
+	for (int i = 0; i < col_cnt; ++i) buf[row_cnt][i] = v[i];
+	reset(row_cnt + 1, col_cnt);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			matrix_s[i][j] = buf[i][j];
+		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::append_col(vector<T> v){
+	if (empty){
+		reset(v.size(), 1);
+		for (int i = 0; i < row_cnt; ++i) matrix_s[i][0] = v[i];
+		return;
+	}
+	if (v.size() != row_cnt) return;
+	unlim_matrix<T> buf(matrix_s, 1);
+	buf.reset(row_cnt, col_cnt + 1);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			buf[i][j] = matrix_s[i][j];
+		}
+	}
+	for (int i = 0; i < row_cnt; ++i) buf[i][col_cnt] = v[i];
+	reset(row_cnt, col_cnt + 1);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			matrix_s[i][j] = buf[i][j];
 		}
 	}
 }
@@ -307,6 +392,19 @@ unlim_matrix<U> unlim_matrix<T>::convert_to(_type<U>&){
 }
 
 template<typename T>
+unlim_vector<T> unlim_matrix<T>::convert_to_vector(){
+	if (row_cnt != 1 && col_cnt != 1 || !col_cnt || !row_cnt) return empty_unlim_vector.convert_to<T>();
+	unlim_vector<T> v(max(row_cnt, col_cnt));
+	if (row_cnt == 1){
+		for (int i = 0; i < col_cnt; ++i) v[i] = matrix_s[0][i];
+	}
+	if (col_cnt == 1){
+		for (int i = 0; i < row_cnt; ++i) v[i] = matrix_s[i][0];
+	}
+	return v;
+}
+
+template<typename T>
 void unlim_matrix<T>::print(char sep, int setw_arg) const {
 	if (empty || !correct) {
 		cout << "{ }";
@@ -317,6 +415,26 @@ void unlim_matrix<T>::print(char sep, int setw_arg) const {
 		cout << "\n";
 	}
 	cout << endl;
+}
+
+template<typename T>
+T unlim_matrix<T>::row_sum(int j){
+	if (j >= row_cnt || j < 0) throw except_index_out_of_range(j);
+	T sum = 0;
+	for (int i = 0; i < col_cnt; ++i){
+		sum += matrix_s[j][i];
+	}
+	return sum;
+}
+
+template<typename T>
+T unlim_matrix<T>::col_sum(int j){
+	if (j >= col_cnt || j < 0) throw except_index_out_of_range(j);
+	T sum = 0;
+	for (int i = 0; i < row_cnt; ++i){
+		sum += matrix_s[i][j];
+	}
+	return sum;
 }
 
 template<typename T>
@@ -409,15 +527,59 @@ int unlim_matrix<T>::rank() const {
 // OPERATORS ======================================================
 
 template<typename T>
+ostream& operator << (ostream& ost, unlim_matrix<T>& matr) {
+	if (matr.is_empty() || !matr.is_correct()) {
+		ost << "{ }";
+		return ost;
+	}
+	for (auto v : matr.matrix_p){
+		for (auto vv : v){ ost << vv << " "; }
+		ost << "\n";
+	}
+	ost << endl;
+	return ost;
+}
+
+template<typename T>
 void unlim_matrix<T>::operator = (unlim_matrix<T> &matr) {
 	correct = matr.correct;
-	matrix_s(matr.matrix_s);
+	//matrix_s(matr.matrix_s);
+	reset(matr.matrix_p);
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			matrix_s[i][j] = matr[i][j];
+		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::operator = (unlim_vector<T> &v){
+	reset(1, v.get_dimention());
+	for (int i = 0; i < col_cnt; ++i){
+		matrix_s[0][i] = v[i];
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::operator = (vector<T> &v){
+	reset(1, v.size());
+	for (int i = 0; i < col_cnt; ++i){
+		matrix_s[0][i] = v[i];
+	}
 }
 
 template<typename T>
 vector<T>& unlim_matrix<T>::operator [](int ind) {
 	if (ind < 0 || row_cnt <= ind) throw except_index_out_of_range(ind);
 	else return matrix_s[ind];
+}
+
+template<typename T>
+vector<T> unlim_matrix<T>::operator ()(int ind){
+	if (ind < 0 || row_cnt <= ind) throw except_index_out_of_range(ind);
+	vector<T> v(row_cnt);
+	for (int i = 0; i < row_cnt; ++i) v[i] = matrix_s[i][ind];
+	return v;
 }
 
 template<typename T, typename U>
@@ -487,7 +649,32 @@ unlim_matrix<T> operator * (unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
 	if (!int_convertable<U>()) throw except_vrong_type<U>();
 	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
-	if (!matr1.is_compatible_with(matr2) || matr1.get_col_cnt() != matr2.get_row_cnt()) return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2) || (matr1.get_col_cnt() != matr2.get_row_cnt())) return empty_unlim_matrix.convert_to<T>();
+	int i, j, k;
+	T sum;
+	int row1 = matr1.get_row_cnt();
+	int col1 = matr1.get_col_cnt();
+	int row2 = matr2.get_row_cnt();
+	int col2 = matr2.get_col_cnt();
+	unlim_matrix<T> matr(row1, col2);
+	for (i = 0; i < row1; ++i) {
+		for (j = 0; j < col2; ++j){
+			sum = 0;
+			for (k = 0; k < col1; ++k){
+				sum += matr1[i][k] * matr2[k][j];
+			}
+			matr[i][j] = sum;
+		}
+	}
+	return matr;
+}
+
+template<typename T, typename U>
+unlim_matrix<T> matr_product(unlim_matrix<T> &matr1, unlim_matrix<U> &matr2) {
+	if (!int_convertable<U>()) throw except_vrong_type<U>();
+	if (!int_convertable<T>()) throw except_vrong_type<T>();
+	if (matr1.is_empty() || matr2.is_empty() || !matr1.is_correct() || !matr2.is_correct()) return empty_unlim_matrix.convert_to<T>();
+	if (!matr1.is_compatible_with(matr2) || (matr1.get_col_cnt() != matr2.get_row_cnt())) return empty_unlim_matrix.convert_to<T>();
 	int i, j, k;
 	T sum;
 	int row1 = matr1.get_row_cnt();
@@ -524,6 +711,16 @@ unlim_vector<T> operator * (unlim_matrix<T> &matr, unlim_vector<U> &vect) {
 		new_vect.vector_p[i] = sum;
 	}
 	return new_vect;
+}
+
+template<typename T>
+void unlim_matrix<T>::operator / (T d){
+	if (d == 0) return;
+	for (int i = 0; i < row_cnt; ++i){
+		for (int j = 0; j < col_cnt; ++j){
+			matrix_s[i][j] /= d;
+		}
+	}
 }
 
 // NON_MEMBER FUNCTIONS =======================================================================
@@ -743,6 +940,46 @@ void operator >> (unlim_matrix<T> &matr, ifstream &f) {
 		}
 	}
 	f.close();
+}
+
+unlim_matrix<double> centrirovat(unlim_matrix<double> &matr){
+	unlim_matrix<double> M;
+	M.reset(matr.matrix_p);
+	double m;
+	int col = matr.get_col_cnt();
+	int row = matr.get_row_cnt();
+	for (int j = 0; j < col; ++j){
+		m = matr.col_sum(j) / col;
+		for (int k = 0; k < row; ++k){
+			M[k][j] = m;
+		}
+	}
+	matr = matr - M;
+	return matr;
+}
+
+unlim_matrix<double> normirovat(unlim_matrix<double> &matr){
+	unlim_matrix<double> W;
+	int col = matr.get_col_cnt();
+	int row = matr.get_row_cnt();
+	double d, m;
+	W.reset(col, col);
+	for (int j = 0; j < col; ++j){
+		for (int i = 0; i < col; ++i){
+			W[i][j] = 0;
+		}
+	}
+	for (int j = 0; j < col; ++j){
+		d = 0;
+		m = matr.col_sum(j) / col;
+		for (int i = 0; i < row; ++i){
+			d += (matr[i][j] - m)*(matr[i][j] - m);
+		}
+		d = sqrt(d / col);
+		W[j][j] = d;
+	}
+	matr = matr * W;
+	return matr;
 }
 
 #endif
