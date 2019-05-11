@@ -45,6 +45,9 @@ public:
 	template<class Iter, class BinaryFunction>
 	int for_(Iter first, Iter last, BinaryFunction f);
 
+	T& operator [](int i);
+	void operator = (unlim_vector<T> v);
+
 	vector<T> &vector_p;
 private:
 	vector<T> vector_s;
@@ -334,6 +337,18 @@ unlim_vector<int> operator * (unlim_vector<int> &v1, unlim_vector<int> &v2) {
 }
 
 template<typename T>
+T& unlim_vector<T>::operator [](int i){
+	if (i < 0 || i >= dimention) throw except_index_out_of_range(i);
+	return vector_s[i];
+}
+
+template<typename T>
+void unlim_vector<T>::operator = (unlim_vector<T> v){
+	reset(v.dimention);
+	for (int i = 0; i < dimention; ++i) vector_s[i] = v.vector_p[i];
+}
+
+template<typename T>
 void unlim_vector<T>::print_to_file(const char* name, const char* type) {
 	if (string(type) == string("bin")){
 		string str = string("vectors\\").append(name);
@@ -425,7 +440,7 @@ void operator >> (unlim_vector<T> &vec, const char* name) {
 }
 
 template<typename T>
-void operator << (unlim_vector<T> &vec, ofstream &f) {
+void operator << (unlim_vector<T> &vec, FILE* f) {
 	int dim = vec.get_dimention();
 	if (!f) throw except_empty_container("empty file");
 
@@ -438,7 +453,7 @@ void operator << (unlim_vector<T> &vec, ofstream &f) {
 }
 
 template<typename T>
-void operator >> (unlim_vector<T> &vec, ifstream &f) {
+void operator >> (unlim_vector<T> &vec, FILE* f) {
 	int dim = 0;
 	if (!f) throw except_empty_container("empty file");
 
