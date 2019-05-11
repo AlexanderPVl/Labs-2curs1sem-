@@ -40,6 +40,18 @@ struct TypeList{
 	typedef U tail;
 };
 
+template<class T>
+struct three_tuple
+{
+	three_tuple(){ is_empty = true; }
+	three_tuple(T t1_, T t2_, T t3_){ t1 = t1_, t2 = t2_, t3 = t3_; is_empty = false; }
+	void print(){ cout << t1 << endl << t2 << endl << t3 << endl; }
+	void operator = (three_tuple<T> t){ t1 = t.t1; t2 = t.t2; t3 = t.t3; is_empty = t.is_empty; }
+	T operator [](int j) { if (j == 0) return t1; if (j == 1) return t2; if (j == 2) return t3; throw except_index_out_of_range(j); }
+	T t1, t2, t3;
+	bool is_empty;
+};
+
 template<typename T>
 T module(T var) { return (var > 0) ? var : -var; }
 
