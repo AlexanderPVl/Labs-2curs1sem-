@@ -55,7 +55,7 @@ void pca::autoscale(){
 three_tuple<unlim_matrix<double>> pca::nipals(){
 	unlim_matrix<double> E;
 	autoscale();
-	E = X;
+	..E = X;
 	E.print();
 	unlim_matrix<double> t, t_old, p, d, P, T;
 	int pc = min(E.get_col_cnt(), E.get_row_cnt()), i = 0;
