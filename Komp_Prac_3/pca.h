@@ -13,6 +13,7 @@ public:
 	void print();
 	unlim_matrix<double> get_X() { return X; }
 	double leverage(int i); // размах
+	vector<double> leverage_vector(); // вектор размахов
 	double leverage(unlim_matrix<double> scores, int i);
 	double variance(int i); // отклонение
 	double TRVC(); // полная дисперсия остатков в обучении
@@ -84,18 +85,33 @@ three_tuple<unlim_matrix<double>> pca::nipals(){
 }
 
 double pca::leverage(int i){
-	//three_tuple<unlim_matrix<double>> nip = nipals();
 	if (nipals_PTE.is_empty) nipals_PTE = nipals();
 	if (i < 0 || i >= nipals_PTE[1].get_col_cnt()) throw except_index_out_of_range(i);
 	unlim_matrix<double> T = nipals_PTE[1];
 	unlim_matrix<double> ti;
-	vector<vector<double>> Ti; Ti.push_back(nipals_PTE[1](i));
-	ti.reset(Ti);
-	unlim_matrix<double> ti_t = ti.transpose();
-	T = matr_product(T, T.transpose());
-	//T = inverse<double>(T);
+
+	ti = T[i];
+	T = matr_product(T.transpose(), T);
 	T = gauss_inverse(T);
-	return matr_product(ti.transpose(), matr_product(matr_product(ti, T), ti.transpose()))[0][0];
+
+	return matr_product(matr_product(ti, T), ti.transpose())[0][0];
+}
+
+vector<double> pca::leverage_vector(){
+	if (nipals_PTE.is_empty) nipals_PTE = nipals();
+	unlim_matrix<double> T = nipals_PTE[1];
+	unlim_matrix<double> mulT = nipals_PTE[1];
+	unlim_matrix<double> ti;
+
+	mulT = gauss_inverse(matr_product(T.transpose(), T));
+
+	vector<double> leverages;
+
+	for (int i = 0; i < T.get_row_cnt(); ++i){
+		ti = T[i];
+		leverages.push_back(matr_product(matr_product(ti, mulT), ti.transpose())[0][0]);
+	}
+	return leverages;
 }
 
 double pca::leverage(unlim_matrix<double> scores, int i){
