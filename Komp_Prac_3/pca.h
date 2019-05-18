@@ -55,9 +55,7 @@ void pca::autoscale(){
 three_tuple<unlim_matrix<double>> pca::nipals(){
 	unlim_matrix<double> E;
 	autoscale();
-	X.print();
 	E = X;
-	centrirovat(normirovat(E));
 	E.print();
 	unlim_matrix<double> t, t_old, p, d, P, T;
 	int pc = min(E.get_col_cnt(), E.get_row_cnt()), i = 0;
@@ -79,6 +77,8 @@ three_tuple<unlim_matrix<double>> pca::nipals(){
 	}
 	P = P.transpose();
 	three_tuple<unlim_matrix<double>> tt(P, T, E);
+	cout << "test: " << endl;
+	(matr_product(T, P) + E).print();
 	nipals_PTE = tt;
 	return tt;
 }
