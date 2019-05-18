@@ -1001,7 +1001,7 @@ unlim_matrix<double> normirovat(unlim_matrix<double> &matr){
 	}
 	for (int j = 0; j < col; ++j){
 		d = 0;
-		m = matr.col_sum(j) / col;
+		m = matr.col_sum(j) / (col - 1);
 		for (int i = 0; i < row; ++i){
 			d += (matr[i][j] - m)*(matr[i][j] - m);
 		}
