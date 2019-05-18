@@ -12,10 +12,11 @@ public:
 	three_tuple<unlim_matrix<double>> nipals();
 	void print();
 	unlim_matrix<double> get_X() { return X; }
-	double leverage(int i); // размах
-	double variance(int i); // отклонение
-	double TRVC(); // полная дисперсия остатков в обучении
-	double ERVC(); // объясенная дисперсия остатков в обучении
+	double leverage(int i); // СЂР°Р·РјР°С…
+	double leverage(unlim_matrix<double> scores, int i);
+	double variance(int i); // РѕС‚РєР»РѕРЅРµРЅРёРµ
+	double TRVC(); // РїРѕР»РЅР°СЏ РґРёСЃРїРµСЂСЃРёСЏ РѕСЃС‚Р°С‚РєРѕРІ РІ РѕР±СѓС‡РµРЅРёРё
+	double ERVC(); // РѕР±СЉСЏСЃРµРЅРЅР°СЏ РґРёСЃРїРµСЂСЃРёСЏ РѕСЃС‚Р°С‚РєРѕРІ РІ РѕР±СѓС‡РµРЅРёРё
 	three_tuple<unlim_matrix<double>> nipals_PTE; // = {P, T, E}
 
 private:
@@ -39,11 +40,11 @@ void pca::print(){
 }
 
 void pca::centrir(){
-	X = centrirovat(X);
+	centrirovat(X);
 }
 
 void pca::normir(){
-	X = normirovat(X);
+	normirovat(X);
 }
 
 void pca::autoscale(){
@@ -54,10 +55,12 @@ void pca::autoscale(){
 three_tuple<unlim_matrix<double>> pca::nipals(){
 	unlim_matrix<double> E;
 	autoscale();
+	X.print();
 	E = X;
-	//E = centrirovat(normirovat(X));
+	centrirovat(normirovat(E));
+	E.print();
 	unlim_matrix<double> t, t_old, p, d, P, T;
-	int pc = min(E.get_col_cnt(), E.get_row_cnt() - 1), i = 0;
+	int pc = min(E.get_col_cnt(), E.get_row_cnt()), i = 0;
 	for (int h = 0; h < pc; ++h){
 		t = E(h);
 		do{
@@ -90,8 +93,22 @@ double pca::leverage(int i){
 	ti.reset(Ti);
 	unlim_matrix<double> ti_t = ti.transpose();
 	T = matr_product(T, T.transpose());
-	T = inverse<double>(T);
-	return matr_product(matr_product(ti, T), ti.transpose())[0][0];
+	//T = inverse<double>(T);
+	T = gauss_inverse(T);
+	return matr_product(ti.transpose(), matr_product(matr_product(ti, T), ti.transpose()))[0][0];
+}
+
+double pca::leverage(unlim_matrix<double> scores, int i){
+	if (i < 0 || i >= scores.get_col_cnt()) throw except_index_out_of_range(i);
+	unlim_matrix<double> T = scores;
+	unlim_matrix<double> ti;
+	vector<vector<double>> Ti; Ti.push_back(scores(i));
+	ti.reset(Ti);
+	unlim_matrix<double> ti_t = ti.transpose();
+	T = matr_product(T, T.transpose());
+	//T = inverse<double>(T);
+	T = gauss_inverse(T);
+	return matr_product(ti.transpose(), matr_product(matr_product(ti, T), ti.transpose()))[0][0];
 }
 
 double pca::variance(int i){
