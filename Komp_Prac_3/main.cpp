@@ -163,12 +163,20 @@ void matrix_test() {
 }
 
 void pca_test(){
-	pca pca1({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f }, { 4, 8, 567 }, { 4, 8, 543 }, { 4345, 8, 90009 }, { 4, 54548, 90009 } });
-	//pca1.nipals();
+	unlim_matrix<double> data;
+	data.read_from_file("data", "txt");
+	data.print();
+	//pca pca1({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f }, { 4, 8, 567 }, { 4, 8, 543 }, { 4345, 8, 90009 }, { 4, 54548, 90009 } });
+	pca pca1(data.matrix_p);
 	three_tuple<unlim_matrix<double>> pca1nip;
 	pca1nip = pca1.nipals_PTE;
-	pca1nip.print();
-	cout << "leverage: " << pca1.leverage(0) << endl;
+	//pca1nip.print();
+	//cout << "leverage: " << pca1.leverage(0) << endl;
+	cout << "leverages: " << endl;
+	vector<double> lev = pca1.leverage_vector();
+	double sum = 0;
+	for (int i = 0; i < lev.size(); ++i) { cout << lev[i] << ", "; sum += lev[i]; }
+	cout << endl << "summ: " << sum << endl;
 	cout << "variance: " << pca1.variance(1) << endl;
 
 	cout << "TRVC: " << pca1.TRVC() << endl;
