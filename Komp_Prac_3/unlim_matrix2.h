@@ -2,6 +2,8 @@
 #define UNLIM_MATRIX_H
 
 #include "unlim_vector.h"
+#include <future>
+#include <mutex>
 
 template<typename T>
 class unlim_matrix{
@@ -27,6 +29,8 @@ public:
 	void reset(vector<vector<T> > &matr);
 	void append_row(vector<T> v);
 	void append_col(vector<T> v);
+	void add_row_to_row(int i, int j, double mult = 1, int start_from = 0);
+	void mult_row_on(int row, double n);
 
 	bool is_correct() const;
 	bool is_empty() const;
@@ -55,6 +59,7 @@ public:
 	int rank() const;
 	friend T determinant(unlim_matrix<T>& matr);
 	friend unlim_matrix<double> inverse(unlim_matrix<T> &matr);
+	void make_identical(int n);
 
 	vector<T>& operator [](int ind);
 	vector<T> operator ()(int ind);
@@ -196,6 +201,21 @@ void unlim_matrix<T>::append_col(vector<T> v){
 		for (int j = 0; j < col_cnt; ++j){
 			matrix_s[i][j] = buf[i][j];
 		}
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::add_row_to_row(int i, int j, double mult, int start_from){
+	if (i >= row_cnt || j >= row_cnt) return;
+	for (int k = start_from; k < col_cnt; ++k){
+		matrix_p[j][k] += matrix_p[i][k] * mult;
+	}
+}
+
+template<typename T>
+void unlim_matrix<T>::mult_row_on(int row, double n){
+	for (int k = 0; k < col_cnt; ++k){
+		matrix_p[row][k] *= n;
 	}
 }
 
@@ -761,6 +781,19 @@ unlim_matrix<double> inverse(unlim_matrix<T> &matr) {
 }
 
 template<typename T>
+void unlim_matrix<T>::make_identical(int n){
+	reset(n, n);
+	for (int i = 0; i < n; ++i){
+		for (int j = 0; j < n; ++j){
+			matrix_p[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < n; ++i){
+		matrix_p[i][i] = 1;
+	}
+}
+
+template<typename T>
 int matr_rank(unlim_matrix<T> &matr) {
 	if (!int_convertable<T>()) throw except_vrong_type<T>();
 	if (matr.is_empty() || !matr.is_correct()) throw except_empty_container();
@@ -771,18 +804,15 @@ int matr_rank(unlim_matrix<T> &matr) {
 	unlim_matrix<double> nmatr(matr.convert_to<double>());
 	int i;
 	for (int j = 0; j < col; ++j) {
-		//int i;
 		for (i = 0; i < row; ++i){
 			if (!used_lines[i] && abs(nmatr.matrix_p[i][j]) > _eps) break;
 		}
 		if (i == row) rank--;
 		else {
 			used_lines[i] = 1;
-			//cout << "delim stroku " << i + 1 << " na " << nmatr.matrix_p[i][j] << endl;
 			for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[i][k] /= nmatr.matrix_p[i][j]; }
 			for (int r = 0; r < row; ++r) {
 				if (r != i && abs(nmatr.matrix_p[r][j]) > _eps) {
-					//cout << "Vichitaem iz stroki " << r + 1 << " Stroku " << i + 1 << ", umnozjennuyu na " << nmatr.matrix_p[r][j] << endl;
 					for (int k = j + 1; k < col; ++k) { nmatr.matrix_p[r][k] -= nmatr.matrix_p[r][j] * nmatr.matrix_p[i][k]; }
 				}
 			}
@@ -980,6 +1010,110 @@ unlim_matrix<double> normirovat(unlim_matrix<double> &matr){
 	}
 	matr = matr * W;
 	return matr;
+}
+
+//DETERMINANT
+/*
+double LU_determinant(vector<vector<double>> A, int n)
+{
+	double det = 1;
+	vector<vector<double>> L;
+	vector<vector<double>> U;
+
+	U = A;
+	for (int i = 0; i < n; i++)
+		for (int j = i; j < n; j++)
+			L[j][i] = U[j][i] / U[i][i];
+
+	for (int k = 1; k < n; k++)
+	{
+		for (int i = k - 1; i < n; i++)
+			for (int j = i; j < n; j++)
+				L[j][i] = U[j][i] / U[i][i];
+
+		for (int i = k; i < n; i++)
+			for (int j = k - 1; j < n; j++)
+				U[i][j] = U[i][j] - L[i][k - 1] * U[k - 1][j];
+	}
+	for (int i = 0; i < n; i++)
+		det *= U[i][i];
+	return det;
+}
+
+template<typename T>
+unlim_matrix<double> LU_inverse(unlim_matrix<T> &matr) {
+	if (matr.is_empty() || !matr.is_correct() || !matr.is_square()) return empty_unlim_matrix.convert_to<double>();
+	int i, j;
+	int row = matr.get_row_cnt();
+	int col = matr.get_col_cnt();
+	unlim_matrix<double> inv_matr(row, col);
+	double deter = LU_determinant(matr.matrix_p, row);
+	for (i = 0; i < row; ++i){
+		for (j = 0; j < col; ++j){
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0) ? 1 : -1) * LU_determinant(matr.algebr_compl(j, i).matrix_p, 0) / deter;
+		}
+	}
+	return inv_matr;
+}
+*/
+
+//DETERMINANT
+
+double gauss_det(unlim_matrix<double> &a)
+{
+	int i, j, k;
+	int countSwaps = 1;
+	unlim_matrix<double> c(a);
+	int n = a.get_row_cnt();
+	int m = a.get_col_cnt();
+	for (i = 0; i < n; ++i)
+	{
+		// находим строку с максимальным первым элементом
+		int iMax = i;
+		for (j = i + 1; j < n; ++j)
+			if (abs(c[j][i]) > abs(c[iMax][i]))
+				iMax = j;
+		if (abs(c[iMax][i]) < _eps)
+			continue;
+		for (k = 0; k < m; ++k)
+			swap(c[i][k], c[iMax][k]);
+		countSwaps = -countSwaps * (i != iMax ? 1 : -1);
+
+		//  вычитаем текущую строку из всех остальных
+		for (j = i + 1; j < n; ++j)
+		{
+			double q = -c[j][i] / c[i][i];
+			for (k = m - 1; k >= i; --k)
+				c[j][k] += q * c[i][k];
+		}
+	}
+
+	double det = 1;
+
+	// умножаем матрицу на -1, если мы сделали  нечётное количество перестановок строк
+	// в итоге определитель результирующей матрицы  будет равен определителю начальной матрицы
+	c = c * countSwaps;
+
+	for (int i = 0; i < n; ++i){
+		det *= c[i][i];
+	}
+
+	return det;
+}
+
+unlim_matrix<double> gauss_inverse(unlim_matrix<double> &matr) {
+	if (matr.is_empty() || !matr.is_correct() || !matr.is_square()) return empty_unlim_matrix.convert_to<double>();
+	int i, j;
+	int row = matr.get_row_cnt();
+	int col = matr.get_col_cnt();
+	unlim_matrix<double> inv_matr(row, col);
+	double deter = gauss_det(matr);
+	for (i = 0; i < row; ++i){
+		for (j = 0; j < col; ++j){
+			inv_matr.matrix_p[i][j] = (((i + j) % 2 == 0) ? 1 : -1) * gauss_det(matr.algebr_compl(j, i)) / deter;
+		}
+	}
+	return inv_matr;
 }
 
 #endif
