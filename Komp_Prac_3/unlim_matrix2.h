@@ -979,7 +979,7 @@ unlim_matrix<double> centrirovat(unlim_matrix<double> &matr){
 	int col = matr.get_col_cnt();
 	int row = matr.get_row_cnt();
 	for (int j = 0; j < col; ++j){
-		m = matr.col_sum(j) / col;
+		m = matr.col_sum(j) / row;
 		for (int k = 0; k < row; ++k){
 			M[k][j] = m;
 		}
@@ -1005,8 +1005,8 @@ unlim_matrix<double> normirovat(unlim_matrix<double> &matr){
 		for (int i = 0; i < row; ++i){
 			d += (matr[i][j] - m)*(matr[i][j] - m);
 		}
-		d = sqrt(d / col);
-		W[j][j] = d;
+		d = sqrt(d / (col - 1));
+		W[j][j] = 1/d;
 	}
 	matr = matr * W;
 	return matr;
