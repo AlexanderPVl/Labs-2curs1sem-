@@ -104,6 +104,7 @@ struct tuple_s{
 	void for_each_transform(UnaryOperator f) { for (int i = 0; i < size; ++i) data[i] = f(data[i]); }
 	template<class BinaryOperator>
 	void for_each_operate(BinaryOperator f, tuple_s tupl) { for (unsigned int i = 0; i < size; ++i) data[i] = f(data[i], tupl.data[i]); }
+	void print() { for (int i = 0; i < size; ++i) { cout << data[i] << ", "; } }
 	T* data;
 	size_t size;
 };
@@ -145,29 +146,54 @@ template<class Ret, class Func, class ... Args>
 class function{
 public:
 	function() : args_len(sizeof ... (Args)) {}
-	Ret operator ()(Args ... args) { return func(args ...); }
-	/*
-	auto integrate(Args ... llim, Args ... rlim) -> decltype(is_of_type<double>(&llim ...)) {
-		if (args_len != 1) return return_this(nan, 2.0);
-		double dllim = return_last(llim ...);
-		double drlim = return_last(rlim ...);
-		//return (drlim - dllim) * func((drlim - dllim) / 2);
-		return return_this(1, nan);
+	Ret operator ()(Args ... args) { return f(args ...); }
+
+	double integrate(double llim, double rlim, double step){
+		double integ = 0;
+		double t = llim;
+		while (t < rlim){
+			integ += step * f(t + step / 2);
+			t += step;
+		}
+		return integ;
 	}
-	*/
-	
+	double derivative(double t, double step){
+		return (f(t + step) - f(t)) / (step);
+	}
+	template<class ... T>
+	tuple_s<double> grad(double step, T ... args){
+		double* arr = new double[args_len];
+		int* iter = new int;
+		*iter = 0;
+		param_pack_toarray(iter, arr, args ...);
+		for (int i = 0; i < args_len; ++i){
+			arr[i] = i;
+		}
+		tuple_s<double> tupl(arr, args_len);
+		delete[] arr;
+		delete iter;
+		return tupl;
+	}
+	/*
 	template<class Func, class ... Args>
 	double integrate(Func f, Args ... args){
 		auto res = do_if_of_type<double, decltype(return_func_type(__integrate__)), double>("trying to execute f1::integrate", __integrate__, args ..., args ...);
-		//if (decltype(nan) == double) { cout << ">> non executed!" << endl; }
-		//else { cout << ">> executed!" << endl; }
 		return 1;
 	}
 	double __integrate__(double llim, double rlim){
 		return rlim - llim;
 	}
+	*/
 
 	const size_t args_len;
 private:
-	Func func;
+	Func f;
+};
+
+template<class Ret, class ... Args>
+class dots_function{
+public:
+	dots_function() : args_len(sizeof ... (Args ...)) {}
+	const size_t args_len;
+private:
 };

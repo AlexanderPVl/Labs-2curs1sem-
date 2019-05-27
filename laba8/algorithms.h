@@ -49,3 +49,19 @@ T return_this(T t, T u) { return t; }
 
 template<class T, class U>
 U return_this(T t, U u) { return u; }
+
+// transform parameter pack to different types
+
+template<class T>
+T* param_pack_toarray(int* iter, T* arr, T t){
+	arr[*iter] = t;
+	return arr;
+}
+
+template<class T, class ... Remainder>
+T* param_pack_toarray(int* iter, T* arr, T t, Remainder ... rem){
+	arr[*iter] = t;
+	*iter += 1;
+	param_pack_toarray(iter, arr, rem ...);
+	return arr;
+}
