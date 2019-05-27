@@ -146,17 +146,26 @@ class function{
 public:
 	function() : args_len(sizeof ... (Args)) {}
 	Ret operator ()(Args ... args) { return func(args ...); }
-	
+	/*
 	auto integrate(Args ... llim, Args ... rlim) -> decltype(is_of_type<double>(&llim ...)) {
-		if (args_len != 1) return return_this(nan,
-			2.0);
+		if (args_len != 1) return return_this(nan, 2.0);
 		double dllim = return_last(llim ...);
 		double drlim = return_last(rlim ...);
 		//return (drlim - dllim) * func((drlim - dllim) / 2);
 		return return_this(1, nan);
 	}
+	*/
 	
-
+	template<class Func, class ... Args>
+	double integrate(Func f, Args ... args){
+		auto res = do_if_of_type<double, decltype(return_func_type(__integrate__)), double>("trying to execute f1::integrate", __integrate__, args ..., args ...);
+		//if (decltype(nan) == double) { cout << ">> non executed!" << endl; }
+		//else { cout << ">> executed!" << endl; }
+		return 1;
+	}
+	double __integrate__(double llim, double rlim){
+		return rlim - llim;
+	}
 
 	const size_t args_len;
 private:

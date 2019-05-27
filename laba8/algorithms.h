@@ -9,6 +9,9 @@ void copy_tf(T* to, T* from, int n){
 	}
 }
 
+template<class Func>
+Func return_func_type(Func *f) { return f; }
+
 // returns type of parameter if it equals to expected else returns decltype(nan)
 
 template<class T>
@@ -20,16 +23,16 @@ decltype(nan) is_of_type(void*) { return nan; }
 template<class T>
 decltype(nan) is_of_type(...) { return nan; }
 
-// do_if_of_type
+// executes f if Compared_type equals to argument type
 
-template<class T>
-void do_if_of_type(T*) { return; }
+template<class Ret_type, class Func, class Compared_type, class ... Args>
+Ret_type do_if_of_type(const char* message, Func *f, Compared_type*, Args ... args) { cout << "> " << message << endl; return f(args ...); }
 
-template<class T>
-void do_if_of_type(void*) { return nan; }
+template<class Ret_type, class Func, class Compared_type, class ... Args>
+decltype(nan) do_if_of_type(const char* message, Func *f, void*, Args ... args) { cout << "> " << message << endl; return nan; }
 
-template<class T>
-void do_if_of_type(...) { return nan; }
+template<class Ret_type, class Func, class Compared_type>
+decltype(nan) do_if_of_type(const char* message, Func *f, ...) { cout << "> " << message << endl; return nan; }
 
 // returns last element in parameter pack
 
