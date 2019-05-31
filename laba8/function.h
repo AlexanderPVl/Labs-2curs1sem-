@@ -1,18 +1,30 @@
 #pragma once
 
-#include <ostream>
-
 #include "algorithms.h"
-#include "exceptions.h"
 
 template<class Arg, class Res>
 struct pair_s{
-	pair_s() = default;
+	pair_s(){};
 	pair_s(Arg arg, Res res) : argument(arg), result(res){}
 	Arg argument;
 	Res result;
-	typedef Arg arg_type;
-	typedef Res res_type;
+};
+
+template<class Arg, class Res>
+void print(pair_s<Arg, Res> ps){
+	cout << "{ " << ps.argument << ", " << ps.result << " }" << endl;
+}
+
+template<class Arg, class Res>
+struct pair_l{
+	pair_l() = default;
+	pair_l(Arg arg, Res res) : argument(arg), result(res){}
+	void operator = (pair_l pl){
+		argument = pl.argument;
+		result = pl.result;
+	}
+	Arg argument;
+	Res result;
 };
 
 template<class Arg, class Res>
@@ -163,30 +175,58 @@ public:
 	template<class ... T>
 	tuple_s<double> grad(double step, T ... args){
 		double* arr = new double[args_len];
-		int* iter = new int;
-		*iter = 0;
-		param_pack_toarray(iter, arr, args ...);
+		param_pack_toarray(0, arr, args ...);
 		for (int i = 0; i < args_len; ++i){
 			arr[i] = i;
 		}
 		tuple_s<double> tupl(arr, args_len);
 		delete[] arr;
-		delete iter;
 		return tupl;
 	}
-	/*
-	template<class Func, class ... Args>
-	double integrate(Func f, Args ... args){
-		auto res = do_if_of_type<double, decltype(return_func_type(__integrate__)), double>("trying to execute f1::integrate", __integrate__, args ..., args ...);
-		return 1;
-	}
-	double __integrate__(double llim, double rlim){
-		return rlim - llim;
-	}
-	*/
 
 	const size_t args_len;
 private:
+	Func f;
+};
+
+template<class Func>
+class diff_equation{
+public:
+	diff_equation(double t0_, vectorn y0_, int n) : y0(y0_) {
+		t0 = t0_;
+	}
+	pair_l<pair_s<double, vectorn>*, int> approximate(double t_lim, double h, int max_pair_cnt = -1){
+		int i = 0;
+		int iter_cnt;
+		if (max_pair_cnt >= 0) iter_cnt = max_pair_cnt;
+		else iter_cnt = (t_lim - t0) / h;
+		pair_s<double, vectorn>* pair_arr = new pair_s<double, vectorn>[max(max_pair_cnt, iter_cnt + 1)];
+		vectorn yn(y0);
+		double tn = t0;
+		pair_arr[0] = pair_s<double, vectorn>(t0, y0);
+		vectorn k1(y0), k2(y0), k3(y0), k4(y0), buf(y0);
+		cout << "iter_cnt" << iter_cnt << "!" << endl;
+			while (tn < t_lim && i++ < iter_cnt){
+			k1 = f(tn, yn);
+			buf = sum(yn, h / 2 * k1);
+			k2 = f(tn + h / 2, buf);
+			buf = sum(yn, h / 2 * k2);
+			k3 = f(tn + h / 2, buf);
+			buf = sum(yn, h*k3);
+			k4 = f(tn + h, buf);
+			yn = sum(yn, h / 6 * sum(k1, k2, k3, k4));
+			tn = tn + h;
+			pair_arr[i] = pair_s<double, vectorn>(tn, yn);
+		}
+
+		pair_l<pair_s<double, vectorn>*, int> ret(pair_arr, i);
+		return ret;
+	}
+
+private:
+	int dim;
+	double t0;
+	vectorn y0;
 	Func f;
 };
 
