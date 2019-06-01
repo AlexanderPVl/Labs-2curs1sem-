@@ -17,9 +17,31 @@ T square(T t){ return t*t; }
 //
 
 template<class T>
+struct list_s{
+	list_s(initializer_list<T> list) {
+		int size = list.size();
+		data = new T[size];
+		int i = 0;
+		for (auto it = list.begin(); it != list.end(); ++it, ++i) data[i] = *it;
+	}
+	T operator [](int i){ return data[i]; }
+	T* data;
+	size_t size;
+};
+
+template<class T>
 void copy_tf(T* to, T* from, int n){
 	for (int i = 0; i < n; ++i){
 		to[i] = from[i];
+	}
+}
+
+template<class T>
+void copy_tf_with_allocation(T** to, T* from, int n){
+	if (*to != nullptr) delete[] *to;
+	*to = new T[n];
+	for (int i = 0; i < n; ++i){
+		(*to)[i] = from[i];
 	}
 }
 
@@ -171,7 +193,7 @@ struct func_tuple{
 	F2 get(){ return; }
 	template<int IND = 3>
 	F3 get(){ return; }
-	F1 ft1;
+	F1 f1;
 	F2 f2;
 	F3 f3;
 	F1 get_1(){ return f1; }
@@ -183,25 +205,25 @@ struct func_tuple{
 class vectorn{
 public:
 	vectorn(initializer_list<double> list, int size_ = 3);
-	vectorn(vectorn, bool foo ...);
+	vectorn(const vectorn&);
 	vectorn(int init, int size_);
 	vectorn(){ size = 0; data = nullptr; }
 	void add(vectorn);
 	void add(double*);
-	void operator + (vectorn);
-	void operator - (vectorn);
-	void operator - (double*);
-	void operator * (double);
-	void operator / (double);
+	void operator += (vectorn);
+	void operator -= (vectorn);
+	void operator -= (double*);
+	void operator *= (double);
+	void operator /= (double);
 	void operator = (vectorn);
-	double operator [](int);
+	double& operator [](int);
 	double* get_data();
 	double norm();
 	double dist(vectorn);
 	vectorn dir(vectorn);
 	void normalize();
-	void prints();
-	int get_size() { return size; }
+	void prints(const char* str = "");
+	int get_size() const { return size; }
 private:
 	size_t size;
 	double* data;
@@ -213,7 +235,7 @@ vectorn::vectorn(initializer_list<double> list, int size_) {
 	int i = 0;
 	for (auto it = list.begin(); it != list.end() && i < size; ++it, ++i) data[i] = *it;
 }
-vectorn::vectorn(vectorn v, bool foo ...) {
+vectorn::vectorn(const vectorn &v) {
 	size = v.size;
 	data = new double[size];
 	for (int i = 0; i < size; ++i) data[i] = v.data[i];
@@ -230,21 +252,21 @@ void vectorn::add(vectorn v){
 void vectorn::add(double* data_){
 	add_tf(data, data_, size);
 }
-void vectorn::operator + (vectorn v){
+void vectorn::operator += (vectorn v){
 	if (size != v.size) return;
 	add_tf(data, v.data, size);
 }
-void vectorn::operator - (vectorn v){
+void vectorn::operator -= (vectorn v){
 	if (size != v.size) return;
 	sub_tf(data, v.data, size);
 }
-void vectorn::operator - (double* data_){
+void vectorn::operator -= (double* data_){
 	sub_tf(data, data_, size);
 }
-void vectorn::operator * (double d){
+void vectorn::operator *= (double d){
 	apply_tf(data, size, [d](double it){ return it * d; });
 }
-void vectorn::operator / (double d){
+void vectorn::operator /= (double d){
 	apply_tf(data, size, [d](double it){ return it / d; });
 }
 void vectorn::operator = (vectorn v){
@@ -256,38 +278,77 @@ void vectorn::operator = (vectorn v){
 		data[i] = v.data[i];
 	}
 }
-double vectorn::operator [](int i){ return data[i]; }
+double& vectorn::operator [](int i){ return data[i]; }
 double* vectorn::get_data(){ return data; }
 double vectorn::norm(){
 	return sqrt(acummulate_tf<double>(data, 0, size, square<double>));
 }
 double vectorn::dist(vectorn v){
 	vectorn vv(v);
-	vv - data;
+	vv -= data;
 	return vv.norm();
 }
 vectorn vectorn::dir(vectorn v){
 	vectorn dir_(v);
-	dir_ - data;
+	dir_ -= data;
 	dir_.normalize();
 	return dir_;
 }
 void vectorn::normalize(){
 	double norm_ = norm();
+	if (norm_ == 0) return;
 	apply_tf(data, size, [norm_](double d){ return d / norm_; });
 }
-void vectorn::prints(){
+void vectorn::prints(const char* str){
+	if (strcmp(str, "")){
+		cout << str << ": ";
+	}
 	cout << "{ " ;
 	for (int i = 0; i < size - 1; ++i){
 		cout << data[i] << ", ";
 	}
-	cout << data[size - 1] << " }";
+	cout << data[size - 1] << " }" << endl;
 }
 
-vectorn operator * (double d, vectorn vec){
+vectorn operator * (double d, const vectorn &vec){
 	int dim = vec.get_size();
 	vectorn newvec(vec);
-	newvec * d;
+	newvec *= d;
+	return newvec;
+}
+
+vectorn operator * (const vectorn &vec, double d){
+	int dim = vec.get_size();
+	vectorn newvec(vec);
+	newvec *= d;
+	return newvec;
+}
+
+vectorn operator / (const vectorn &vec, double d){
+	int dim = vec.get_size();
+	vectorn newvec(vec);
+	newvec /= d;
+	return newvec;
+}
+
+vectorn operator / (double d, const vectorn &vec){
+	int dim = vec.get_size();
+	vectorn newvec(vec);
+	newvec /= d;
+	return newvec;
+}
+
+vectorn operator + (const vectorn &v1, const vectorn &v2){
+	int dim = v1.get_size();
+	vectorn newvec(v1);
+	newvec += v2;
+	return newvec;
+}
+
+vectorn operator - (const vectorn &v1, const vectorn &v2){
+	int dim = v1.get_size();
+	vectorn newvec(v1);
+	newvec -= v2;
 	return newvec;
 }
 
@@ -301,6 +362,17 @@ vectorn sum(vectorn v, Vec ... vecs){
 	newvec + sum(vecs ...);
 	return newvec;
 }
+
+void operator << (ostream &ost, vectorn v){
+	cout << "{ ";
+	size_t dim = v.get_size();
+	for (int i = 0; i < dim - 1; ++i){
+		cout << v[i] << ", ";
+	}
+	cout << v[dim - 1] << " }" << endl;
+}
+
+
 
 int min(int num){ return num; }
 

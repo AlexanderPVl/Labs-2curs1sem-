@@ -16,40 +16,59 @@ void sample_test(bool to_exucute){
 	cout << "gradient of f3 in (3, 3): {"; f3.grad(0.000001, 3.0, 3.0).print(); cout << "}" << endl;
 }
 
+vectorn func1(double t, initializer_list<vectorn> list){
+	return vectorn(0, 3);
+}
+
+vectorn func2(double t, initializer_list<vectorn> list){
+	return vectorn(0, 3);
+}
+
+vectorn func3(double t, initializer_list<vectorn> list){
+	return vectorn(0, 3);
+}
+
+vectorn force1(double t, vectorn &pos){
+	vectorn v(pos.dir(vectorn(0, 3)));
+	v[2] = 0;
+	return v;
+}
+
+vectorn force2(double t, vectorn &pos){
+	return pos.dir(vectorn(0, 3));
+}
+
+vectorn force3(double t, vectorn &pos){
+	double x = 0;
+	double y = 0;
+	double z = -9.87;
+	vectorn v({ x, y, z });
+	return v;
+}
+
 void physics_test(bool to_exucute){
 	if (!to_exucute) return;
+	typedef vectorn (*func_type)(double, vectorn&);
 
 	vectorn v0(0, 3);
 	vectorn v1({ 3, 6.75, 2 });
 	vectorn v2({ 4.82, 7, 1.15 });
 	vectorn v3({ 9.9, 8.5, 3.678 });
 
-	auto f1 = [](vectorn pos, double t){
-		double x = pos[0] + pos[1] / t + pos[2] / (t * t);
-		double y = pos[0] + pos[1] + pos[2] * t;
-		double z = pos[0] * pos[1] * pos[2] * t;
-		vectorn v({ x, y, z });
-		return v;
-	};
-	auto f2 = [](vectorn pos, double t){
-		double x = 3;
-		double y = pos[0] + pos[1] + pos[2] / t;
-		double z = 5;
-		vectorn v({ x, y, z });
-		v / (t + 0.4);
-		return v;
-	};
-	auto f3 = [](vectorn pos, double t){
-		double x = 1;
-		double y = 2;
-		double z = pos[0] * pos[1] / t + pos[2] / t;
-		vectorn v({ x, y, z });
-		v / (t + 1);
-		return v;
-	};
+	vectorn initpos(0, 3);
+	vectorn initvel(1, 3);
 
-	func_tuple<decltype(f1), decltype(f2), decltype(f3)> tupl1;
-	tupl1.get_3()(v1, 26).prints();
+	double dtime = 0.01;
+	double *G = new double;
+	double *time = new double;
+	*G = 6.77 * 10E-11;
+	*time = 0;
+	particle<func_type> part1(initpos, initvel, 1, { force1, force2, force3 }, G, time);
+	for (int i = 0; i < 1000; ++i){
+		part1.apply_forces(nullptr, 0, dtime);
+		part1.get_position().prints("current position: ");
+		*time += dtime;
+	}
 }
 
 void different_equat(bool to_exucute){
@@ -63,11 +82,11 @@ void different_equat(bool to_exucute){
 		res * t;
 		return res;
 	};
-	diff_equation<decltype(f1)> de(0, vectorn(0, 3), 3);
+	runge_kutti<decltype(f1)> de(0, vectorn(0, 3), 3);
 	
 	pair_s<double, vectorn>* solve;
 	int data_cnt;
-	pair_l<pair_s<double, vectorn>*, int> res = de.approximate(1, 0.001, -1);
+	pair_l<pair_s<double, vectorn>*, int> res = de.approximate(0.2, 0.001, -1);
 	solve = res.argument;
 	data_cnt = res.result;
 	cout << data_cnt << endl;
@@ -75,14 +94,19 @@ void different_equat(bool to_exucute){
 		//print(solve[i]);
 		cout << "{ " << solve[i].argument << "\t,";
 		solve[i].result.prints();
-		cout << " }" << endl;
+		//cout << " }" << endl;
 	}
+	delete[] res.argument;
+
+	diff_equation de1({ func1, func2, func3 });
+
+	typedef vectorn f_type(double, initializer_list<vectorn>);
 }
 
 int main(){
 	sample_test(0);
-	physics_test(0);
-	different_equat(1);
+	physics_test(1);
+	different_equat(0);
 
 	return 0;
 }

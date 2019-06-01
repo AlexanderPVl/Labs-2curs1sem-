@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms.h"
+#include <fstream>
 
 template<class Arg, class Res>
 struct pair_s{
@@ -9,6 +10,11 @@ struct pair_s{
 	Arg argument;
 	Res result;
 };
+
+template<class Arg, class Res>
+void operator << (ostream &ost, pair_s<Arg, Res> ps){
+	cout << "{ " << ps.argument << ", " << ps.result << " }" << endl;
+}
 
 template<class Arg, class Res>
 void print(pair_s<Arg, Res> ps){
@@ -23,6 +29,7 @@ struct pair_l{
 		argument = pl.argument;
 		result = pl.result;
 	}
+	void operator = (pair_s<Arg, Res> ps) { argument = ps.argument, result = ps.result; }
 	Arg argument;
 	Res result;
 };
@@ -190,9 +197,9 @@ private:
 };
 
 template<class Func>
-class diff_equation{
+class runge_kutti{
 public:
-	diff_equation(double t0_, vectorn y0_, int n) : y0(y0_) {
+	runge_kutti(double t0_, vectorn y0_, int n) : y0(y0_) {
 		t0 = t0_;
 	}
 	pair_l<pair_s<double, vectorn>*, int> approximate(double t_lim, double h, int max_pair_cnt = -1){
@@ -205,7 +212,6 @@ public:
 		double tn = t0;
 		pair_arr[0] = pair_s<double, vectorn>(t0, y0);
 		vectorn k1(y0), k2(y0), k3(y0), k4(y0), buf(y0);
-		cout << "iter_cnt" << iter_cnt << "!" << endl;
 			while (tn < t_lim && i++ < iter_cnt){
 			k1 = f(tn, yn);
 			buf = sum(yn, h / 2 * k1);
@@ -222,18 +228,60 @@ public:
 		pair_l<pair_s<double, vectorn>*, int> ret(pair_arr, i);
 		return ret;
 	}
-
 private:
-	int dim;
 	double t0;
 	vectorn y0;
 	Func f;
 };
 
-template<class Ret, class ... Args>
+class diff_equation{
+public:
+	typedef vectorn(*func_type)(double, initializer_list<vectorn>);
+	diff_equation(initializer_list<func_type> list) : func_list(list) {}
+
+private:
+	initializer_list<func_type> func_list;
+};
+
+template<class Arg, class Val>
 class dots_function{
 public:
-	dots_function() : args_len(sizeof ... (Args ...)) {}
-	const size_t args_len;
+	dots_function() : arr_len(0), arr(nullptr) {}
+	~dots_function() { delete[] arr; }
+	void write_to_file(const char* name){
+		fstream f("functions_folder/" + name, ios::binary);
+		pair_s<Arg, Val>* curr = arr;
+		size_t remain = arr_len;
+		size_t iter_cnt = 1000;
+		Arg* buff_arg[1000];
+		Arg* buff_res[1000];
+
+		if (remain < iter_cnt) iter_cnt = remain;
+		for (int i = 0; i < iter_cnt; ++i){
+			buff_arg[i] = (*(curr + i)).argument;
+			buff_res[i] = (*(curr + i)).result;
+		}
+
+		if (remain < 1000) remain = 0;
+		else remain -= 1000;
+		for (int i = 0; i < iter_cnt; ++i){
+			f.write((Arg*)buff_arg + i, sizeof(Arg));
+			f.write((Val*)buff_res + i, sizeof(Val));
+		}
+		f.close();
+	}
+	void operator = (pair_l<pair_s<Arg, Val>*, int> pl) {
+		arr_len = pl.result;
+		arr = new pair_s<Arg, Val>[arr_len];
+		//copy_tf_with_allocation(&arr, pl.argument, arr_len);
+		copy_tf(arr, pl.argument, arr_len);
+	}
+	void prints(){
+		for (int i = 0; i < arr_len; ++i){
+			cout << "{ " << arr[i].argument << ", " << arr[i].result << " }" << endl;
+		}
+	}
+	size_t arr_len;
 private:
+	pair_s<Arg, Val>* arr;
 };
