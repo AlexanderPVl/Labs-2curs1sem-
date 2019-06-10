@@ -34,6 +34,16 @@ struct pair_l{
 	Res result;
 };
 
+double dispersion(pair_l<pair_s<double, vectorn>*, int> pairs1, pair_l<pair_s<double, vectorn>*, int> pairs2){
+	if (pairs1.result != pairs2.result) return 0;
+	size_t N = pairs1.result;
+	double sum = 0;
+	for (int i = 0; i < N; ++i){
+		sum += square((pairs1.argument[i].result - pairs2.argument[i].result).norm());
+	}
+	return sum;
+}
+
 template<class Arg, class Res>
 ostream& operator << (ostream& ost, pair_s<Arg, Res> pr){
 	ost << "<" << pr.argument << ", " << pr.result << "> ";
@@ -212,16 +222,35 @@ public:
 		double tn = t0;
 		pair_arr[0] = pair_s<double, vectorn>(t0, y0);
 		vectorn k1(y0), k2(y0), k3(y0), k4(y0), buf(y0);
-			while (tn < t_lim && i++ < iter_cnt){
+		while (tn < t_lim && i++ < iter_cnt){
 			k1 = f(tn, yn);
-			buf = sum(yn, h / 2 * k1);
+			buf = vecsum(yn, h / 2 * k1);
 			k2 = f(tn + h / 2, buf);
-			buf = sum(yn, h / 2 * k2);
+			buf = vecsum(yn, h / 2 * k2);
 			k3 = f(tn + h / 2, buf);
-			buf = sum(yn, h*k3);
+			buf = vecsum(yn, h*k3);
 			k4 = f(tn + h, buf);
-			yn = sum(yn, h / 6 * sum(k1, k2, k3, k4));
+			yn = vecsum(yn, h / 6 * vecsum(k1, k2, k3, k4));
 			tn = tn + h;
+			pair_arr[i] = pair_s<double, vectorn>(tn, yn);
+		}
+
+		pair_l<pair_s<double, vectorn>*, int> ret(pair_arr, i);
+		return ret;
+	}
+	pair_l<pair_s<double, vectorn>*, int> euler(double t_lim, double h, int max_pair_cnt = -1){
+		int i = 0;
+		int iter_cnt;
+		if (max_pair_cnt >= 0) iter_cnt = max_pair_cnt;
+		else iter_cnt = (t_lim - t0) / h;
+		pair_s<double, vectorn>* pair_arr = new pair_s<double, vectorn>[max(max_pair_cnt, iter_cnt + 1)];
+		double tn = t0;
+		pair_arr[0] = pair_s<double, vectorn>(t0, y0);
+		vectorn yn(y0), buf(y0), An;
+		while (tn < t_lim && i++ < iter_cnt){
+			An = f(tn, yn);
+			tn = tn + h;
+			yn += h * An;
 			pair_arr[i] = pair_s<double, vectorn>(tn, yn);
 		}
 

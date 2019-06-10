@@ -18,13 +18,24 @@ T square(T t){ return t*t; }
 
 template<class T>
 struct list_s{
+	list_s(){ data = nullptr; size = 0; }
+	list_s(list_s<T> &li){
+		size = li.size;
+		data = new T[size];
+		for (int i = 0; i < size; ++i){
+			data[i] = li.data[i];
+		}
+	}
 	list_s(initializer_list<T> list) {
-		int size = list.size();
+		size = list.size();
 		data = new T[size];
 		int i = 0;
 		for (auto it = list.begin(); it != list.end(); ++it, ++i) data[i] = *it;
 	}
-	T operator [](int i){ return data[i]; }
+	T operator [](int i){ 
+		if (i >= size) throw except_index_out_of_range(size);
+		return data[i];
+	}
 	T* data;
 	size_t size;
 };
@@ -206,7 +217,7 @@ class vectorn{
 public:
 	vectorn(initializer_list<double> list, int size_ = 3);
 	vectorn(const vectorn&);
-	vectorn(int init, int size_);
+	vectorn(double init, int size_);
 	vectorn(){ size = 0; data = nullptr; }
 	void add(vectorn);
 	void add(double*);
@@ -240,7 +251,7 @@ vectorn::vectorn(const vectorn &v) {
 	data = new double[size];
 	for (int i = 0; i < size; ++i) data[i] = v.data[i];
 }
-vectorn::vectorn(int init, int size_){
+vectorn::vectorn(double init, int size_){
 	size = size_;
 	data = new double[size];
 	for (int i = 0; i < size; ++i) data[i] = init;
@@ -352,14 +363,14 @@ vectorn operator - (const vectorn &v1, const vectorn &v2){
 	return newvec;
 }
 
-vectorn sum(vectorn v){
+vectorn vecsum(vectorn v){
 	return v;
 }
 
 template<class ... Vec>
-vectorn sum(vectorn v, Vec ... vecs){
+vectorn vecsum(vectorn v, Vec ... vecs){
 	vectorn newvec(v);
-	newvec + sum(vecs ...);
+	newvec += vecsum(vecs ...);
 	return newvec;
 }
 

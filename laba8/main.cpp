@@ -46,7 +46,7 @@ vectorn force3(double t, vectorn &pos){
 	return v;
 }
 
-void physics_test(bool to_exucute){
+void physics_test1(bool to_exucute){
 	if (!to_exucute) return;
 	typedef vectorn (*func_type)(double, vectorn&);
 
@@ -58,17 +58,33 @@ void physics_test(bool to_exucute){
 	vectorn initpos(0, 3);
 	vectorn initvel(1, 3);
 
-	double dtime = 0.01;
+	double dtime = 0.001;
 	double *G = new double;
 	double *time = new double;
-	*G = 6.77 * 10E-11;
+	*G = 6.674301515151515151515 * 10E-11;
 	*time = 0;
-	particle<func_type> part1(initpos, initvel, 1, { force1, force2, force3 }, G, time);
-	for (int i = 0; i < 1000; ++i){
-		part1.apply_forces(nullptr, 0, dtime);
-		part1.get_position().prints("current position: ");
-		*time += dtime;
+	particle part1(initpos, initvel, 1, { force1, force2, force3 });
+	for (int i = 0; i < 10000; ++i){
+		if (i % 100 == 0){
+			part1.move(nullptr, 0, dtime, time, G);
+			part1.get_position().prints("current position: ");
+			*time += dtime;
+		}
 	}
+}
+
+void physics_test2(bool to_exucute){
+	if (!to_exucute) return;
+	typedef vectorn(*force_type)(double, vectorn&);
+
+	list_s<force_type> force_list({ force1, force2, force3 });
+	list_s<particle> particle_list({
+		particle(vectorn(1, 3), vectorn(0.1, 3), 1, { force0 }),
+		particle(vectorn(1, 3), vectorn(0.2, 3), 2, { force0 }),
+		particle(vectorn(1, 3), vectorn(0.3, 3), 3, { force0 })
+	});
+	particle_system syst1(particle_list, force_list, 0);
+	syst1.calculate(1, 0.1);
 }
 
 void different_equat(bool to_exucute){
@@ -85,17 +101,21 @@ void different_equat(bool to_exucute){
 	runge_kutti<decltype(f1)> de(0, vectorn(0, 3), 3);
 	
 	pair_s<double, vectorn>* solve;
+	pair_s<double, vectorn>* solve1;
 	int data_cnt;
 	pair_l<pair_s<double, vectorn>*, int> res = de.approximate(0.2, 0.001, -1);
+	pair_l<pair_s<double, vectorn>*, int> res1 = de.euler(0.2, 0.001, -1);
 	solve = res.argument;
+	solve1 = res1.argument;
 	data_cnt = res.result;
-	cout << data_cnt << endl;
+	cout << data_cnt << endl;/*
 	for (int i = 0; i < data_cnt; ++i){
 		//print(solve[i]);
 		cout << "{ " << solve[i].argument << "\t,";
-		solve[i].result.prints();
+		(solve[i].result-solve1[i].result).prints();
 		//cout << " }" << endl;
-	}
+	}*/
+	cout << dispersion(res, res1);
 	delete[] res.argument;
 
 	diff_equation de1({ func1, func2, func3 });
@@ -105,7 +125,8 @@ void different_equat(bool to_exucute){
 
 int main(){
 	sample_test(0);
-	physics_test(1);
+	physics_test1(0);
+	physics_test2(1);
 	different_equat(0);
 
 	return 0;
