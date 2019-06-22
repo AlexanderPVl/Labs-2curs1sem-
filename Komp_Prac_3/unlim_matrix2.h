@@ -827,8 +827,8 @@ void unlim_matrix<T>::print_to_file(const char* name, const char* type) {
 	if (string(type) == string("bin")){
 		//int row_cnt = get_row_cnt();
 		//int col_cnt = get_col_cnt();
-		string str = string("matrices\\").append(name);
-		ofstream f(name, ios::binary);
+		string str = string("matrices\\").append(name).append(".bin");
+		ofstream f(str, ios::binary);
 		if (!f) throw except_empty_container("empty file");
 
 		f.write((char*)&row_cnt, sizeof(int));
