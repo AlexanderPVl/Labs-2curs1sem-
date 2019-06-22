@@ -55,6 +55,6 @@ struct three_tuple
 template<typename T>
 T module(T var) { return (var > 0) ? var : -var; }
 
-const double _eps = 1E-12;
+const double _eps = 1E-9;
 
 #endif

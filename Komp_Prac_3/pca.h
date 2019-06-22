@@ -12,12 +12,12 @@ public:
 	three_tuple<unlim_matrix<double>> nipals();
 	void print();
 	unlim_matrix<double> get_X() { return X; }
-	double leverage(int i); // СЂР°Р·РјР°С…
-	vector<double> leverage_vector(); // РІРµРєС‚РѕСЂ СЂР°Р·РјР°С…РѕРІ
+	double leverage(int i); // размах
+	vector<double> leverage_vector(); // вектор размахов
 	double leverage(unlim_matrix<double> scores, int i);
-	double variance(int i); // РѕС‚РєР»РѕРЅРµРЅРёРµ
-	double TRVC(); // РїРѕР»РЅР°СЏ РґРёСЃРїРµСЂСЃРёСЏ РѕСЃС‚Р°С‚РєРѕРІ РІ РѕР±СѓС‡РµРЅРёРё
-	double ERVC(); // РѕР±СЉСЏСЃРµРЅРЅР°СЏ РґРёСЃРїРµСЂСЃРёСЏ РѕСЃС‚Р°С‚РєРѕРІ РІ РѕР±СѓС‡РµРЅРёРё
+	double variance(int i); // отклонение
+	double TRVC(); // полная дисперсия остатков в обучении
+	double ERVC(); // объясенная дисперсия остатков в обучении
 	three_tuple<unlim_matrix<double>> nipals_PTE; // = {P, T, E}
 
 private:
@@ -57,7 +57,7 @@ three_tuple<unlim_matrix<double>> pca::nipals(){
 	unlim_matrix<double> E;
 	autoscale();
 	E = X;
-	E.print();
+	//E.print();
 	unlim_matrix<double> t, t_old, p, d, P, T;
 	int pc = min(E.get_col_cnt(), E.get_row_cnt()), i = 0;
 	for (int h = 0; h < pc; ++h){
@@ -77,9 +77,9 @@ three_tuple<unlim_matrix<double>> pca::nipals(){
 		T.append_col(t(0));
 	}
 	P = P.transpose();
+
 	three_tuple<unlim_matrix<double>> tt(P, T, E);
 	cout << "test: " << endl;
-	(matr_product(T, P) + E).print();
 	nipals_PTE = tt;
 	return tt;
 }
@@ -130,7 +130,11 @@ double pca::leverage(unlim_matrix<double> scores, int i){
 double pca::variance(int i){
 	if (nipals_PTE.is_empty) nipals_PTE = nipals();
 	if (i < 0 || i >= nipals_PTE[2].get_row_cnt()) throw except_index_out_of_range(i);
-	return sqrt(nipals_PTE[2].row_sum(i));
+	double sum = 0;
+	for (int k = 0; k < nipals_PTE[2].get_col_cnt(); ++k){
+		sum += (nipals_PTE[2])[i][k] * (nipals_PTE[2])[i][k];
+	}
+	return sqrt(sum);
 }
 
 double pca::TRVC(){

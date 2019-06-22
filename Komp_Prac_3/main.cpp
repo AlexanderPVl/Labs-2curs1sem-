@@ -166,10 +166,14 @@ void pca_test(){
 	unlim_matrix<double> data;
 	data.read_from_file("data", "txt");
 	data.print();
+	pca p(data.matrix_p);
 	//pca pca1({ { 1.1f, 2, 3 }, { 2, 3.3f, 4 }, { 3, 4, 5.5f }, { 4, 8, 567 }, { 4, 8, 543 }, { 4345, 8, 90009 }, { 4, 54548, 90009 } });
 	pca pca1(data.matrix_p);
 	three_tuple<unlim_matrix<double>> pca1nip;
 	pca1nip = pca1.nipals_PTE;
+	pca1nip[0].print_to_file("P", "bin");
+	pca1nip[1].print_to_file("T", "bin");
+	pca1nip[2].print_to_file("E", "bin");
 	//pca1nip.print();
 	//cout << "leverage: " << pca1.leverage(0) << endl;
 	cout << "leverages: " << endl;
@@ -181,6 +185,7 @@ void pca_test(){
 
 	cout << "TRVC: " << pca1.TRVC() << endl;
 	cout << "ERVC: " << pca1.ERVC() << endl;
+	
 }
 
 void convert_to_int() {
